@@ -30,7 +30,10 @@ public class BTScheduler extends Scheduler {
     // This method is called each cycle and this where the strategy is implemented.
     // the job list must be updated according to the proper strategy.
     //TODO : some feedback from net agent
+
+
     public void updateTasks(Node localNode){
+        System.out.println(localNode);
 
     }
 }
