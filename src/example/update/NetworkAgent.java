@@ -43,6 +43,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
+    List<Map.Entry<String, boolean[]>> otherNodes;
+
+    boolean reqrec = false;
+
 
     public long overhead =0;
 
@@ -92,19 +96,19 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         }
     }
 
-//    private Map.Entry<String, Integer> getRandomDownload() {
+//    private Map.Entry<String, Integer> getRandomDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
 //
-//       for (int i = 0; i < localData.size(); i++) {
-//           int rand = CommonState.r.nextInt(localData.get(i).getValue().length);
+//       for (int i = 0; i < this.localData.size(); i++) {
+//           int rand = CommonState.r.nextInt(this.localData.get(i).getValue().length);
 //
-//           for (int j = rand; j < localData.get(i).getValue().length; j++) {
-//               if (localData.get(i).getValue()[j] == false) {
-//                   return new SimpleEntry<>(localData.get(i).getKey(), j);
+//           for (int j = rand; j < this.localData.get(i).getValue().length; j++) {
+//               if (this.localData.get(i).getValue()[j] == false) {
+//                   return new SimpleEntry<>(this.localData.get(i).getKey(), j);
 //               }
 //           }
 //           for (int j = 0; j < rand; j++) {
-//               if (localData.get(i).getValue()[j] == false) {
-//                   return new SimpleEntry<>(localData.get(i).getKey(), j);
+//               if (this.localData.get(i).getValue()[j] == false) {
+//                   return new SimpleEntry<>(this.localData.get(i).getKey(), j);
 //               }
 //           }
 //       }
@@ -115,43 +119,32 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     private Map.Entry<String, Integer> getRandomDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
 
 
-        DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0 , node, this.localData);
+        DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, node, this.localData);
         requestNeighbors(node, askForData, pid);
 
-//        System.out.println("LOCAL DATA: " +localData + " SIZE: "+ localData.size());
-//        int no = 0;
-//        int yes = 0;
-//        for (int i = 0; i < localData.size(); i++) {
-//            for (int j = 0; j < localData.get(i).getValue().length; j++) {
-//                if (localData.get(i).getValue()[j] == false) {
-//                    no++;
-//                }
-//                else
-//                    yes++;
-//            }
-//        }
-//        System.out.println("YES: " + yes + " NO: " + no);
 
-        for (int i = 0; i < this.localData.size(); i++) {
-            int rand = CommonState.r.nextInt(this.localData.get(i).getValue().length);
+        if(reqrec) {
 
-            for (int j = rand; j < this.localData.get(i).getValue().length; j++) {
+            for (int i = 0; i < this.otherNodes.size(); i++) {
+
+                for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
 //                System.out.println("VAL: " +j +" = "+ localData.get(i).getValue()[j]);
 
-                if (this.localData.get(i).getValue()[j] == false) {
+                    if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
 //                    System.out.println("RETURNED!! "+ j);
 
-                    return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                        System.out.println("RETURNED: "+this.otherNodes.get(i).getKey()+ " -- "+j+ " -- "+ this.localData.get(i).getValue()[j]);
+                        return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                    }
                 }
             }
-            for (int j = 0; j < rand; j++) {
-                if (this.localData.get(i).getValue()[j] == false) {
-                    return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-                }
-            }
+            reqrec = false;
         }
-        return null;
-    }
+
+            return null;
+
+        }
+
 
     private void usePower(int multiplier, Node node){
         ((Energy) node.getProtocol(powerSourcePID)).consume(multiplier);
@@ -169,7 +162,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             Map.Entry<String, Integer> toDownload = getRandomDownload(node, pid, localData);
             if ( toDownload != null) {
                 //craft a new message
-                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
+//                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
                 DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), node, localData);
                 requestNeighbors(node, msg, pid);
             }
@@ -203,7 +196,9 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 
             case DataMessage.GET:
-                System.out.println("IN GET " + localNode + localData);
+                otherNodes = event.offers;
+                reqrec = true;
+//                System.out.println("LOCAL: " + otherNodes + "\n OTHER: " +localData);
 
                 break;
 
@@ -258,7 +253,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 usePower(1, localNode);
                 break;
 
-                //TODO : what if energy cuts during a trasnfer? seeder is locked.
+                //TODO : what if energy cuts during a transfer? seeder is locked.
             case DataMessage.DATAACK:
                 //System.out.println("node "+ localNode.getID() +" piece "+event.pieceNumber +" DATAACK message from node" + event.sender.getID());
                 //we can stop uploading
