@@ -9,6 +9,7 @@ import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 
@@ -91,23 +92,65 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         }
     }
 
-    private Map.Entry<String, Integer> getRandomDownload() {
+//    private Map.Entry<String, Integer> getRandomDownload() {
+//
+//       for (int i = 0; i < localData.size(); i++) {
+//           int rand = CommonState.r.nextInt(localData.get(i).getValue().length);
+//
+//           for (int j = rand; j < localData.get(i).getValue().length; j++) {
+//               if (localData.get(i).getValue()[j] == false) {
+//                   return new SimpleEntry<>(localData.get(i).getKey(), j);
+//               }
+//           }
+//           for (int j = 0; j < rand; j++) {
+//               if (localData.get(i).getValue()[j] == false) {
+//                   return new SimpleEntry<>(localData.get(i).getKey(), j);
+//               }
+//           }
+//       }
+//       return null;
+//    }
 
-       for (int i = 0; i < localData.size(); i++) {
-           int rand = CommonState.r.nextInt(localData.get(i).getValue().length);
 
-           for (int j = rand; j < localData.get(i).getValue().length; j++) {
-               if (localData.get(i).getValue()[j] == false) {
-                   return new SimpleEntry<>(localData.get(i).getKey(), j);
-               }
-           }
-           for (int j = 0; j < rand; j++) {
-               if (localData.get(i).getValue()[j] == false) {
-                   return new SimpleEntry<>(localData.get(i).getKey(), j);
-               }
-           }
-       }
-       return null;
+    private Map.Entry<String, Integer> getRandomDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
+
+
+        DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0 , node, this.localData);
+        requestNeighbors(node, askForData, pid);
+
+//        System.out.println("LOCAL DATA: " +localData + " SIZE: "+ localData.size());
+//        int no = 0;
+//        int yes = 0;
+//        for (int i = 0; i < localData.size(); i++) {
+//            for (int j = 0; j < localData.get(i).getValue().length; j++) {
+//                if (localData.get(i).getValue()[j] == false) {
+//                    no++;
+//                }
+//                else
+//                    yes++;
+//            }
+//        }
+//        System.out.println("YES: " + yes + " NO: " + no);
+
+        for (int i = 0; i < this.localData.size(); i++) {
+            int rand = CommonState.r.nextInt(this.localData.get(i).getValue().length);
+
+            for (int j = rand; j < this.localData.get(i).getValue().length; j++) {
+//                System.out.println("VAL: " +j +" = "+ localData.get(i).getValue()[j]);
+
+                if (this.localData.get(i).getValue()[j] == false) {
+//                    System.out.println("RETURNED!! "+ j);
+
+                    return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                }
+            }
+            for (int j = 0; j < rand; j++) {
+                if (this.localData.get(i).getValue()[j] == false) {
+                    return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                }
+            }
+        }
+        return null;
     }
 
     private void usePower(int multiplier, Node node){
@@ -123,10 +166,11 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     public void nextCycle(Node node, int pid) {
         if (!downloading && ! localData.isEmpty()){
 
-            Map.Entry<String, Integer> toDownload = getRandomDownload();
+            Map.Entry<String, Integer> toDownload = getRandomDownload(node, pid, localData);
             if ( toDownload != null) {
                 //craft a new message
-                DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), node);
+                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
+                DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), node, localData);
                 requestNeighbors(node, msg, pid);
             }
         }
@@ -144,11 +188,23 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     // is this piece complete
                     if (localData.get(getLocalIndex(event.hash)).getValue()[event.pieceNumber]) {
-                        DataMessage reply = new DataMessage(DataMessage.OFFER, event.hash, event.pieceNumber, localNode);
+                        DataMessage reply = new DataMessage(DataMessage.OFFER, event.hash, event.pieceNumber, localNode, localData);
                         EDSimulator.add(1, reply, event.sender, pid);
                         usePower(1, localNode);
                     }
                 }
+                break;
+
+            case DataMessage.TELLME:
+                DataMessage sendInfo = new DataMessage(DataMessage.GET, event.hash, event.pieceNumber, localNode, localData);
+                EDSimulator.add(1, sendInfo, event.sender, pid);
+
+                break;
+
+
+            case DataMessage.GET:
+                System.out.println("IN GET " + localNode + localData);
+
                 break;
 
             case DataMessage.OFFER:
@@ -156,7 +212,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 if (!downloading) {
                     this.downloading = true;
                     //send ACCEPT
-                    DataMessage accept = new DataMessage(DataMessage.ACCEPT, event.hash, event.pieceNumber, localNode);
+                    DataMessage accept = new DataMessage(DataMessage.ACCEPT, event.hash, event.pieceNumber, localNode, localData);
                     EDSimulator.add(1, accept, event.sender, pid);
                     usePower(1, localNode);
                 }
@@ -175,7 +231,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     long bdw = localUplink <= remoteDownlink ? localUplink : remoteDownlink;
 
-                    dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode);
+                    dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, localData);
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
                     //consume energy
                     usePower((int)(pieceSize/bdw), localNode);
@@ -183,7 +239,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 } else { // send a cancel message
                     DataMessage dataMsg;
 
-                    dataMsg = new DataMessage(DataMessage.CANCEL, event.hash, event.pieceNumber, localNode);
+                    dataMsg = new DataMessage(DataMessage.CANCEL, event.hash, event.pieceNumber, localNode, localData);
                     EDSimulator.add(1, dataMsg, event.sender, pid);
                     usePower(1, localNode);
                 }
@@ -197,7 +253,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 this.downloading = false;
 
                 //send ack
-                DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode);
+                DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode, localData);
                 EDSimulator.add(1, msg, event.sender, pid);
                 usePower(1, localNode);
                 break;
@@ -214,6 +270,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 // try again
                 this.nextCycle(localNode, pid);
                 break;
+
+
         }
     }
 
@@ -300,19 +358,27 @@ class DataMessage{
     final static int DATA = 3;
     final static int DATAACK = 4;
     final static int CANCEL = 5;
-     // ? //enum type1 {REQUEST, RESPONSE}
+    final static int TELLME = 6;
+    final static int GET = 7;
+
+    // ? //enum type1 {REQUEST, RESPONSE}
 
     int type;
 
     String hash;
     int pieceNumber;
+    List<Map.Entry<String, boolean[]>> offers;
     Node sender;
 
 
-    public DataMessage(int type, String hash, int pieceNumber, Node sender) {
+
+
+
+    public DataMessage(int type, String hash, int pieceNumber, Node sender, List<Map.Entry<String, boolean[]>> offers) {
         this.sender = sender;
         this.type = type;
         this.hash = hash;
         this.pieceNumber = pieceNumber;
+        this.offers = offers;
     }
 }
