@@ -140,44 +140,75 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         requestNeighbors(node, askForData, pid);
 
 
-        if(reqrec) {
+        if (reqrec) {
 
-            System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
+//            System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
+
+            if (this.other.size() <= this.localData.size()) {
+
+                for (int i = 0; i < this.other.size(); i++) {
+
+                    for (int j = 0; j < this.other.get(i).getValue().length; j++) {
 
 
-            //Get what you can
-
-            if (this.otherNodes.size() <= this.localData.size()){
-
-                for (int i = 0; i < this.otherNodes.size(); i++) {
-
-                    for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
-
-                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
-                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                        if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
+//                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+
                         }
                     }
                 }
-        }
-        else {
+            } else {
 //            Never seems to happen
                 for (int i = 0; i < this.localData.size(); i++) {
 
                     for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
 
-                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
-                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                        if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
+//                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
                         }
                     }
                 }
-            }
-                reqrec = false;
+
+
+                //Get what you can
+
+//            if (this.otherNodes.size() <= this.localData.size()){
+//
+//                for (int i = 0; i < this.otherNodes.size(); i++) {
+//
+//                    for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
+//
+//                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
+//                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+//                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+//                        }
+//                    }
+//                }
+//        }
+//        else {
+////            Never seems to happen
+//                for (int i = 0; i < this.localData.size(); i++) {
+//
+//                    for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
+//
+//                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
+//                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+//                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+//                        }
+//                    }
+//                }
+//            }
 
             }
-            return null;
+            reqrec = false;
+
         }
+        return null;
+
+    }
+
 
 
         public void workWithOthers(List<Map.Entry<String, boolean[]>> otherNodes) {
@@ -230,7 +261,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             answears = 0;
             Map.Entry<String, Integer> toDownload = getDownload(node, pid, localData);
             clearData2();
-            System.out.println("OTHER NODES: "+otherNodes);
+            clearData();
+//            System.out.println("OTHER NODES: "+otherNodes);
 
             if ( toDownload != null) {
                 //craft a new message
@@ -276,7 +308,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                     if(otherNodes!=null) {
                         if (!otherNodes.isEmpty()){
                             workWithOthers(otherNodes);
-                            clearData();
+                            clearData2();
                     }
                 }}
 //                System.out.println("OTHER NODES: "+otherNodes);
