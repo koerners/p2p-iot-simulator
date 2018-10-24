@@ -276,6 +276,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                     if(otherNodes!=null) {
                         if (!otherNodes.isEmpty()){
                             workWithOthers(otherNodes);
+                            clearData();
                     }
                 }}
 //                System.out.println("OTHER NODES: "+otherNodes);
