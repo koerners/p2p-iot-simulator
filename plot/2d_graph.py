@@ -4,7 +4,7 @@ import argparse
 import os
 import math
 
-interval = 40
+interval = 20
 
 def plotter(file_seq, path):
     

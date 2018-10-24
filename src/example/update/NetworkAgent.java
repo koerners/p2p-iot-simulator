@@ -10,6 +10,7 @@ import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
 
 import javax.xml.crypto.Data;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 
@@ -125,22 +126,74 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
         if(reqrec) {
 
+            System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
+
             for (int i = 0; i < this.otherNodes.size(); i++) {
 
                 for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
 //                System.out.println("VAL: " +j +" = "+ localData.get(i).getValue()[j]);
 
-                    if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
+
+                    if (this.otherNodes.size() <= this.localData.size()) {
+
+                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
 //                    System.out.println("RETURNED!! "+ j);
 
-                        System.out.println("RETURNED: "+this.otherNodes.get(i).getKey()+ " -- "+j+ " -- "+ this.localData.get(i).getValue()[j]);
-                        return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                        }
                     }
-                }
-            }
-            reqrec = false;
-        }
 
+//                    else if (this.otherNodes.get(i).getValue()[j] == true){
+//
+//                            System.out.println(" 2. Schleife: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+//                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+//                            }
+                }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                reqrec = false;
+
+            }
+
+        System.out.println("NULL");
             return null;
 
         }
@@ -190,6 +243,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
             case DataMessage.TELLME:
                 DataMessage sendInfo = new DataMessage(DataMessage.GET, event.hash, event.pieceNumber, localNode, localData);
+//                System.out.println("HASH: " +event.hash);
                 EDSimulator.add(1, sendInfo, event.sender, pid);
 
                 break;
@@ -199,6 +253,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 otherNodes = event.offers;
                 reqrec = true;
 //                System.out.println("LOCAL: " + otherNodes + "\n OTHER: " +localData);
+//                System.out.println("HASH: " +event.hash);
+
 
                 break;
 

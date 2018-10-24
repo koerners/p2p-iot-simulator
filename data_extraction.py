@@ -25,6 +25,7 @@ def progressSinceLastInterval(file_seq, path, id, packageNr):
     else:
         return
 
+
     progressNew = pandas.read_csv(
         path + "/progress_dump" + file_seq + ".dat", delimiter=';')
 
