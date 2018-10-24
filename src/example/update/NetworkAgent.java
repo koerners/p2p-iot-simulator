@@ -117,7 +117,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 //    }
 
 
-    private Map.Entry<String, Integer> getRandomDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
+    private Map.Entry<String, Integer> getDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
 
 
         DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, node, this.localData);
@@ -128,74 +128,37 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
             System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
 
-            for (int i = 0; i < this.otherNodes.size(); i++) {
+            if (this.otherNodes.size() <= this.localData.size()){
 
-                for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
-//                System.out.println("VAL: " +j +" = "+ localData.get(i).getValue()[j]);
+                for (int i = 0; i < this.otherNodes.size(); i++) {
 
-
-                    if (this.otherNodes.size() <= this.localData.size()) {
+                    for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
 
                         if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
-//                    System.out.println("RETURNED!! "+ j);
-
                             System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
                         }
                     }
-
-//                    else if (this.otherNodes.get(i).getValue()[j] == true){
-//
-//                            System.out.println(" 2. Schleife: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-//                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-//                            }
                 }
+        }
+        else {
+//            Never seems to happen
+                for (int i = 0; i < this.localData.size(); i++) {
+
+                    for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
+
+                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
+                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                        }
+                    }
                 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
+            }
                 reqrec = false;
 
             }
 
-        System.out.println("NULL");
             return null;
-
         }
 
 
@@ -212,7 +175,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     public void nextCycle(Node node, int pid) {
         if (!downloading && ! localData.isEmpty()){
 
-            Map.Entry<String, Integer> toDownload = getRandomDownload(node, pid, localData);
+            Map.Entry<String, Integer> toDownload = getDownload(node, pid, localData);
             if ( toDownload != null) {
                 //craft a new message
 //                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());

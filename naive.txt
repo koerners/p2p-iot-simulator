@@ -11,7 +11,7 @@ map_size 1000
 #random.seed 1234567890
 random.seed 22222222748
 
-simulation.endtime 40000
+simulation.endtime 200000
 simulation.logtime 50
 
 
