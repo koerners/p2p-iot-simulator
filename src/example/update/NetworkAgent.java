@@ -9,8 +9,6 @@ import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
 
-import javax.xml.crypto.Data;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 
@@ -119,12 +117,12 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 //       return null;
 //    }
 
-    public void clearData(){
+    public void clearOtherNodes(){
         if(otherNodes!=null) {
             if (!otherNodes.isEmpty()) otherNodes.clear();
         }
     }
-    public void clearData2(){
+    public void clearOther(){
         if(other!=null) {
             if (!other.isEmpty()) other.clear();
         }
@@ -135,10 +133,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     private Map.Entry<String, Integer> getDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
 
-
         DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, node, this.localData);
         requestNeighbors(node, askForData, pid);
 
+//        System.out.println(other);ma
 
         if (reqrec) {
 
@@ -153,6 +151,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                         if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
 //                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                            clearOther();
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
 
                         }
@@ -160,12 +159,16 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 }
             } else {
 //            Never seems to happen
+
+                System.out.println(this.other.size() + " -- " + this.localData.size());
+
                 for (int i = 0; i < this.localData.size(); i++) {
 
                     for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
 
                         if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
 //                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                            clearOther();
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
                         }
                     }
@@ -202,9 +205,11 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 //            }
 
             }
+            clearOther();
             reqrec = false;
 
         }
+
         return null;
 
     }
@@ -215,18 +220,19 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
            // System.out.println(otherNodes);
             //System.out.println(other);
-            int size = otherNodes.get(0).getValue().length; //this.otherNodes.size();
+            //int size = otherNodes.get(0).getValue().length; //this.otherNodes.size();
 
             for (int i = 0; i < this.otherNodes.size(); i++) {
 
+                if(other.isEmpty() || !other.contains(this.otherNodes.get(i))) {
+                    other.add(new SimpleEntry(this.otherNodes.get(i), new int[otherNodes.get(i).getValue().length]));
+                    //Arrays.fill(other.get(i).getValue(), 0);
+                }
                     for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
                         //System.out.println("Size: "+ size + " get " +this.otherNodes.get(i) + " VALUE " + this.otherNodes.get(i).getValue()[j] );
                         //System.out.println("Size: "+ size + " get " +this.other.get(i) + " VALUE " + this.other.get(i).getValue()[j] );
 
-                        if(other.isEmpty() || !other.contains(this.otherNodes.get(i))) {
-                            other.add(new SimpleEntry(this.otherNodes.get(i), new int[size]));
-                            //Arrays.fill(other.get(i).getValue(), 0);
-                        }
+
 //                        if(!other.contains(this.otherNodes.get(i))){
 //                            other.add(new SimpleEntry(this.otherNodes.get(i), new int[size]));
 //                            //Arrays.fill(other.get(i).getValue(), 0);
@@ -236,13 +242,12 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                         if(this.otherNodes.get(i).getValue()[j] == true) {other.get(i).getValue()[j] = other.get(i).getValue()[j]+1;}
                          //System.out.println("!!!: " +  other.get(i).getValue()[j]);
 
-                        if(this.otherNodes.get(i).getValue()[j] == false && this.other.get(i).getValue()[j] != 0) {other.get(i).getValue()[j] = other.get(i).getValue()[j]-1;}
+//                        if(this.otherNodes.get(i).getValue()[j] == false && this.other.get(i).getValue()[j] != 0) {other.get(i).getValue()[j] = other.get(i).getValue()[j]-1;}
 
                     }
                 //System.out.println(Arrays.toString(otherNodes.get(i).getValue()));
 
             }
-
         }
 
 
@@ -258,10 +263,13 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     public void nextCycle(Node node, int pid) {
         if (!downloading && ! localData.isEmpty()){
-            answears = 0;
+            //clearOther();
+            clearOtherNodes();
+
             Map.Entry<String, Integer> toDownload = getDownload(node, pid, localData);
-            clearData2();
-            clearData();
+
+
+
 //            System.out.println("OTHER NODES: "+otherNodes);
 
             if ( toDownload != null) {
@@ -308,12 +316,12 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                     if(otherNodes!=null) {
                         if (!otherNodes.isEmpty()){
                             workWithOthers(otherNodes);
-                            clearData2();
+                            clearOtherNodes();
                     }
                 }}
 //                System.out.println("OTHER NODES: "+otherNodes);
 //                System.out.println("LOCAL NODE: "+localData);
-
+                answears = 0;
                 reqrec = true;
                 break;
 
