@@ -45,7 +45,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
     List<Map.Entry<String, boolean[]>> otherNodes;
-    List<Map.Entry<String, int[]>> other;
+    List<Map.Entry<String, int[]>> other = new ArrayList<>();
 
     boolean reqrec = false;
     int answears = 0;
@@ -131,6 +131,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
 
+
+
     private Map.Entry<String, Integer> getDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
 
 
@@ -141,6 +143,9 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         if(reqrec) {
 
             System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
+
+
+            //Get what you can
 
             if (this.otherNodes.size() <= this.localData.size()){
 
@@ -177,29 +182,36 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
         public void workWithOthers(List<Map.Entry<String, boolean[]>> otherNodes) {
 
-            System.out.println(otherNodes);
-            System.out.println(other);
-            int size = this.localData.size();
+           // System.out.println(otherNodes);
+            //System.out.println(other);
+            int size = otherNodes.get(0).getValue().length; //this.otherNodes.size();
 
-            int[] intArray = new int[size];
-
-            if(other == null) other.add(new SimpleEntry<>("init", intArray));
-
-
-                for (int i = 0; i < this.otherNodes.size(); i++) {
+            for (int i = 0; i < this.otherNodes.size(); i++) {
 
                     for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
+                        //System.out.println("Size: "+ size + " get " +this.otherNodes.get(i) + " VALUE " + this.otherNodes.get(i).getValue()[j] );
+                        //System.out.println("Size: "+ size + " get " +this.other.get(i) + " VALUE " + this.other.get(i).getValue()[j] );
 
-                        if(!other.contains(this.otherNodes.get(i))) other.add(new SimpleEntry(this.otherNodes.get(i), intArray[i]));
+                        if(other.isEmpty() || !other.contains(this.otherNodes.get(i))) {
+                            other.add(new SimpleEntry(this.otherNodes.get(i), new int[size]));
+                            //Arrays.fill(other.get(i).getValue(), 0);
+                        }
+//                        if(!other.contains(this.otherNodes.get(i))){
+//                            other.add(new SimpleEntry(this.otherNodes.get(i), new int[size]));
+//                            //Arrays.fill(other.get(i).getValue(), 0);
+//                        }
+                        //System.out.println("1: " +this.otherNodes.get(i).getValue()[j] + " 2: "+other.get(i).getValue()[j] );
 
-                        if(this.otherNodes.get(i).getValue()[j] == true) this.other.get(i).getValue()[j]++;
+                        if(this.otherNodes.get(i).getValue()[j] == true) {other.get(i).getValue()[j] = other.get(i).getValue()[j]+1;}
+                         //System.out.println("!!!: " +  other.get(i).getValue()[j]);
 
-                        if(this.otherNodes.get(i).getValue()[j] == true && this.other.get(i).getValue()[j] != 0) this.other.get(i).getValue()[j]--;
+                        if(this.otherNodes.get(i).getValue()[j] == false && this.other.get(i).getValue()[j] != 0) {other.get(i).getValue()[j] = other.get(i).getValue()[j]-1;}
 
                     }
-                }
+                //System.out.println(Arrays.toString(otherNodes.get(i).getValue()));
 
-            System.out.println("OTHER: "+other);
+            }
+
         }
 
 
@@ -216,8 +228,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     public void nextCycle(Node node, int pid) {
         if (!downloading && ! localData.isEmpty()){
             answears = 0;
-
             Map.Entry<String, Integer> toDownload = getDownload(node, pid, localData);
+            clearData2();
             System.out.println("OTHER NODES: "+otherNodes);
 
             if ( toDownload != null) {
