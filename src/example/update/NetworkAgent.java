@@ -45,6 +45,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
     List<Map.Entry<String, boolean[]>> otherNodes;
+    List<Map.Entry<String, int[]>> other;
 
     boolean reqrec = false;
     int answears = 0;
@@ -54,6 +55,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     // constructor
     String prefix;
+
     public NetworkAgent(String prefix) {
         this.prefix = prefix;
 
@@ -122,6 +124,11 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             if (!otherNodes.isEmpty()) otherNodes.clear();
         }
     }
+    public void clearData2(){
+        if(other!=null) {
+            if (!other.isEmpty()) other.clear();
+        }
+    }
 
 
     private Map.Entry<String, Integer> getDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
@@ -143,7 +150,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                         if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
                             System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-                            clearData();
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
                         }
                     }
@@ -157,7 +163,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                         if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
                             System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-                            clearData();
                             return new SimpleEntry<>(this.localData.get(i).getKey(), j);
                         }
                     }
@@ -166,8 +171,35 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 reqrec = false;
 
             }
-            clearData();
             return null;
+        }
+
+
+        public void workWithOthers(List<Map.Entry<String, boolean[]>> otherNodes) {
+
+            System.out.println(otherNodes);
+            System.out.println(other);
+            int size = this.localData.size();
+
+            int[] intArray = new int[size];
+
+            if(other == null) other.add(new SimpleEntry<>("init", intArray));
+
+
+                for (int i = 0; i < this.otherNodes.size(); i++) {
+
+                    for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
+
+                        if(!other.contains(this.otherNodes.get(i))) other.add(new SimpleEntry(this.otherNodes.get(i), intArray[i]));
+
+                        if(this.otherNodes.get(i).getValue()[j] == true) this.other.get(i).getValue()[j]++;
+
+                        if(this.otherNodes.get(i).getValue()[j] == true && this.other.get(i).getValue()[j] != 0) this.other.get(i).getValue()[j]--;
+
+                    }
+                }
+
+            System.out.println("OTHER: "+other);
         }
 
 
@@ -218,7 +250,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 break;
 
             case DataMessage.TELLME:
-                clearData();
                 DataMessage sendInfo = new DataMessage(DataMessage.GET, event.hash, event.pieceNumber, localNode, localData);
                 EDSimulator.add(1, sendInfo, event.sender, pid);
                 answears++;
@@ -227,10 +258,14 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 
             case DataMessage.GET:
-                otherNodes = event.offers;
-               for (int i = 0; i<=answears; i++) {
-                   otherNodes.addAll(event.offers);
-               }
+
+                for (int i = 0; i<= answears; i++) {
+                    otherNodes = event.offers;
+                    if(otherNodes!=null) {
+                        if (!otherNodes.isEmpty()){
+                            workWithOthers(otherNodes);
+                    }
+                }}
 //                System.out.println("OTHER NODES: "+otherNodes);
 //                System.out.println("LOCAL NODE: "+localData);
 
