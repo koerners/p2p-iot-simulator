@@ -131,10 +131,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 
 
-    private Map.Entry<String, Integer> getDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
+    private Map.Entry<String, Integer> getDownload(Node localNode, int pid, List<Map.Entry<String, boolean[]>> localData) {
 
-        DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, node, this.localData);
-        requestNeighbors(node, askForData, pid);
+        DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, localNode, this.localData);
+        requestNeighbors(localNode, askForData, pid);
 
 //        System.out.println(other);ma
 
@@ -142,73 +142,30 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 //            System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
 
-            if (this.other.size() <= this.localData.size()) {
+
 
                 for (int i = 0; i < this.other.size(); i++) {
 
                     for (int j = 0; j < this.other.get(i).getValue().length; j++) {
+                        System.out.println(" j is "+j);
 
+                         if (other.get(i).getKey().equals(localData.get(i).getKey())) {
+                             if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
+                                 //                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
+                                 clearOther();
+                                 return new SimpleEntry<>(this.localData.get(i).getKey(), j);
 
-                        if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
-//                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-                            clearOther();
-                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-
-                        }
+                             }
+                         }
                     }
                 }
-            } else {
-//            Never seems to happen
-
-                System.out.println(this.other.size() + " -- " + this.localData.size());
-
-                for (int i = 0; i < this.localData.size(); i++) {
-
-                    for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
-
-                        if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
-//                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-                            clearOther();
-                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-                        }
-                    }
-                }
-
-
-                //Get what you can
-
-//            if (this.otherNodes.size() <= this.localData.size()){
-//
-//                for (int i = 0; i < this.otherNodes.size(); i++) {
-//
-//                    for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
-//
-//                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
-//                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-//                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-//                        }
-//                    }
-//                }
-//        }
-//        else {
-////            Never seems to happen
-//                for (int i = 0; i < this.localData.size(); i++) {
-//
-//                    for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
-//
-//                        if (this.otherNodes.get(i).getValue()[j] == true && this.localData.get(i).getValue()[j] == false) {
-//                            System.out.println("2. Case ret: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-//                            return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-//                        }
-//                    }
-//                }
-//            }
 
             }
+
             clearOther();
             reqrec = false;
 
-        }
+
 
         return null;
 
@@ -225,7 +182,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             for (int i = 0; i < this.otherNodes.size(); i++) {
 
                 if(other.isEmpty() || !other.contains(this.otherNodes.get(i))) {
-                    other.add(new SimpleEntry(this.otherNodes.get(i), new int[otherNodes.get(i).getValue().length]));
+                    other.add(new SimpleEntry(this.otherNodes.get(i).getKey(), new int[otherNodes.get(i).getValue().length]));
                     //Arrays.fill(other.get(i).getValue(), 0);
                 }
                     for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
@@ -261,12 +218,12 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
 
-    public void nextCycle(Node node, int pid) {
+    public void nextCycle(Node localNode, int pid) {
         if (!downloading && ! localData.isEmpty()){
             //clearOther();
             clearOtherNodes();
 
-            Map.Entry<String, Integer> toDownload = getDownload(node, pid, localData);
+            Map.Entry<String, Integer> toDownload = getDownload(localNode, pid, localData);
 
 
 
@@ -275,8 +232,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             if ( toDownload != null) {
                 //craft a new message
 //                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
-                DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), node, localData);
-                requestNeighbors(node, msg, pid);
+                DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), localNode, localData);
+                requestNeighbors(localNode, msg, pid);
 
             }
         }
