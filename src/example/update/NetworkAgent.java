@@ -4,7 +4,6 @@ import example.update.constraints.Bandwidth;
 import example.update.strategies.Energy;
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
@@ -42,12 +41,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
-    List<Map.Entry<String, boolean[]>> otherNodes;
-    List<Map.Entry<String, int[]>> other = new ArrayList<>();
+    List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesData;
+    //List<Map.Entry<String, int[]>> other;
 
-    boolean reqrec = false;
-    int answears = 0;
-
+    boolean tellMeRequestSent = false;
 
     public long overhead =0;
 
@@ -64,6 +61,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         pieceSize = Configuration.getInt(prefix + "." +PIECE_SIZE);
 
         localData = new ArrayList<>();
+        otherNodesData = new ArrayList<>();
     }
 
 
@@ -117,95 +115,82 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 //       return null;
 //    }
 
-    public void clearOtherNodes(){
-        if(otherNodes!=null) {
-            if (!otherNodes.isEmpty()) otherNodes.clear();
-        }
-    }
+//    public void clearOtherNodes(){
+//        if(otherNodes!=null) {
+//            if (!otherNodes.isEmpty()) otherNodes.clear();
+//        }
+//    }
     public void clearOther(){
-        if(other!=null) {
-            if (!other.isEmpty()) other.clear();
+        if(otherNodesData!=null) {
+            otherNodesData.clear();
         }
     }
 
 
+    private Map.Entry<String, Integer> getDownload(Node localNode, int pid) {
 
+        /*//TODO something cleaner in a separate function.
+        boolean nothingToDo = true;
+        for (Map.Entry<String, boolean[]> localDl : localData) {
+            nothingToDo = isCompleted(localDl.getValue());
+        }
+        if (nothingToDo){
+            System.out.println("doing ntg");
+            return null;
+        }*/
 
-    private Map.Entry<String, Integer> getDownload(Node localNode, int pid, List<Map.Entry<String, boolean[]>> localData) {
+        if (!tellMeRequestSent) {
+            DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, localNode, this.localData);
+            requestNeighbors(localNode, askForData, pid);
+            tellMeRequestSent = true;
+        } else if (tellMeRequestSent && ! otherNodesData.isEmpty()) {
 
-        DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, localNode, this.localData);
-        requestNeighbors(localNode, askForData, pid);
+            for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesData) {
+                for (Map.Entry<String, boolean[]> localDl : localData) {
+                    // first we search a matching download.
+                    if (localDl.getKey().equals(availableDl.getValue().getKey())) {
 
-//        System.out.println(other);ma
+                        //then select a piece to download among the offered ones.
+                        for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
+                            System.out.println("remote ("+availableDl.getKey().getID()+")="+availableDl.getValue().getValue()[i] +";"
+                                    +" local("+localNode.getID()+")="+ localDl.getValue()[i]);
 
-        if (reqrec) {
+                            if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
+                                System.out.println("getDownload in node "+localNode.getID()+" picked piece number: "+ i+" from node "+availableDl.getKey().getID());
 
-//            System.out.println("Others Size: " + this.otherNodes.size() + " This Size: " + this.localData.size());
-
-
-
-                for (int i = 0; i < this.other.size(); i++) {
-
-                    for (int j = 0; j < this.other.get(i).getValue().length; j++) {
-                        System.out.println(" j is "+j);
-
-                         if (other.get(i).getKey().equals(localData.get(i).getKey())) {
-                             if (this.other.get(i).getValue()[j] > 0 && this.localData.get(i).getValue()[j] == false) {
-                                 //                            System.out.println("RETURNED: " + this.otherNodes.get(i).getKey() + " -- " + j + " -- " + this.localData.get(i).getValue()[j]);
-                                 clearOther();
-                                 return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-
-                             }
-                         }
+                                return new SimpleEntry<>(localDl.getKey(), i);
+                            }
+                        }
+                        // No useful piece in that answer
+                        otherNodesData.remove(availableDl);
                     }
                 }
-
             }
-
+            // received responses don't match anything locally or have nothing of interest. Reset everything.
             clearOther();
-            reqrec = false;
-
-
-
+            tellMeRequestSent = false;
+        }
         return null;
-
     }
 
 
-
+ /*
         public void workWithOthers(List<Map.Entry<String, boolean[]>> otherNodes) {
-
-           // System.out.println(otherNodes);
-            //System.out.println(other);
-            //int size = otherNodes.get(0).getValue().length; //this.otherNodes.size();
 
             for (int i = 0; i < this.otherNodes.size(); i++) {
 
-                if(other.isEmpty() || !other.contains(this.otherNodes.get(i))) {
+                if(other.isEmpty() || ! other.contains(this.otherNodes.get(i))) {
                     other.add(new SimpleEntry(this.otherNodes.get(i).getKey(), new int[otherNodes.get(i).getValue().length]));
                     //Arrays.fill(other.get(i).getValue(), 0);
                 }
                     for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
-                        //System.out.println("Size: "+ size + " get " +this.otherNodes.get(i) + " VALUE " + this.otherNodes.get(i).getValue()[j] );
-                        //System.out.println("Size: "+ size + " get " +this.other.get(i) + " VALUE " + this.other.get(i).getValue()[j] );
-
-
-//                        if(!other.contains(this.otherNodes.get(i))){
-//                            other.add(new SimpleEntry(this.otherNodes.get(i), new int[size]));
-//                            //Arrays.fill(other.get(i).getValue(), 0);
-//                        }
-                        //System.out.println("1: " +this.otherNodes.get(i).getValue()[j] + " 2: "+other.get(i).getValue()[j] );
 
                         if(this.otherNodes.get(i).getValue()[j] == true) {other.get(i).getValue()[j] = other.get(i).getValue()[j]+1;}
-                         //System.out.println("!!!: " +  other.get(i).getValue()[j]);
-
-//                        if(this.otherNodes.get(i).getValue()[j] == false && this.other.get(i).getValue()[j] != 0) {other.get(i).getValue()[j] = other.get(i).getValue()[j]-1;}
 
                     }
-                //System.out.println(Arrays.toString(otherNodes.get(i).getValue()));
-
             }
         }
+        */
 
 
     private void usePower(int multiplier, Node node){
@@ -217,15 +202,21 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
        return  ((NeighborhoodMaintainer)local.getProtocol(neighborhoodPID)).getNeighbors().contains(neighbor);
     }
 
+    private boolean isCompleted(boolean[] array){
+        for(boolean value : array){
+            if (value == false)
+                return false;
+        }
+        return true;
+    }
+
 
     public void nextCycle(Node localNode, int pid) {
         if (!downloading && ! localData.isEmpty()){
-            //clearOther();
-            clearOtherNodes();
 
-            Map.Entry<String, Integer> toDownload = getDownload(localNode, pid, localData);
+            //clearOtherNodes();
 
-
+            Map.Entry<String, Integer> toDownload = getDownload(localNode, pid);
 
 //            System.out.println("OTHER NODES: "+otherNodes);
 
@@ -243,11 +234,14 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     public void processEvent(Node localNode, int pid, Object data) {
 
         DataMessage event = (DataMessage)(data);
+        if (event.sender == localNode){
+            return;
+        }
 
         switch (event.type) {
 
             case DataMessage.REQUEST:
-                if (!downloading && event.sender != localNode && localDataContains(event.hash)) {
+                if (!downloading && localDataContains(event.hash)) {
 
                     // is this piece complete
                     if (localData.get(getLocalIndex(event.hash)).getValue()[event.pieceNumber]) {
@@ -259,27 +253,16 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 break;
 
             case DataMessage.TELLME:
-                DataMessage sendInfo = new DataMessage(DataMessage.GET, event.hash, event.pieceNumber, localNode, localData);
+                DataMessage sendInfo = new DataMessage(DataMessage.LISTRESPONSE, event.hash, event.pieceNumber, localNode, localData);
                 EDSimulator.add(1, sendInfo, event.sender, pid);
-                answears++;
-//                System.out.println("ANSWEARS: "+answears);
                 break;
 
 
-            case DataMessage.GET:
+            case DataMessage.LISTRESPONSE:
 
-                for (int i = 0; i<= answears; i++) {
-                    otherNodes = event.offers;
-                    if(otherNodes!=null) {
-                        if (!otherNodes.isEmpty()){
-                            workWithOthers(otherNodes);
-                            clearOtherNodes();
-                    }
-                }}
-//                System.out.println("OTHER NODES: "+otherNodes);
-//                System.out.println("LOCAL NODE: "+localData);
-                answears = 0;
-                reqrec = true;
+                for ( Map.Entry<String, boolean[]> senderDataEntry : event.offers){
+                    otherNodesData.add(new SimpleEntry<>(event.sender, senderDataEntry));
+                }
                 break;
 
             case DataMessage.OFFER:
@@ -434,19 +417,15 @@ class DataMessage{
     final static int DATAACK = 4;
     final static int CANCEL = 5;
     final static int TELLME = 6;
-    final static int GET = 7;
+    final static int LISTRESPONSE = 7;
 
     // ? //enum type1 {REQUEST, RESPONSE}
 
     int type;
-
     String hash;
     int pieceNumber;
     List<Map.Entry<String, boolean[]>> offers;
     Node sender;
-
-
-
 
 
     public DataMessage(int type, String hash, int pieceNumber, Node sender, List<Map.Entry<String, boolean[]>> offers) {

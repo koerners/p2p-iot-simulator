@@ -6,12 +6,12 @@ OBERVERS_CYCLE 50
 PROTOCOL_CYCLE 20
 CONTROL_CYCLE 50
 
-network.size 9
+network.size 3
 map_size 1000
 #random.seed 1234567890
 random.seed 22222222748
 
-simulation.endtime 200000
+simulation.endtime 3000
 simulation.logtime 50
 
 
@@ -36,7 +36,7 @@ init.3.max_bandwidth 1000
 
 init.4 example.update.initialisation.RangeInitializer
 init.4.protocol range
-init.4.gaussian_mean 500
+init.4.gaussian_mean 1500
 
 init.5 example.update.initialisation.StorageInitializer
 init.5.protocol disk_space
@@ -102,11 +102,11 @@ protocol.p2p_net_agent.step PROTOCOL_CYCLE
 
 ################ controls ==============================
 
-control.inserter example.update.control.GossipInsert
-control.inserter.gossip_protocol gossip
-control.inserter.network_protocol p2p_net_agent
-control.inserter.size 600
-control.inserter.step CONTROL_CYCLE
+#control.inserter example.update.control.GossipInsert
+#control.inserter.gossip_protocol gossip
+#control.inserter.network_protocol p2p_net_agent
+#control.inserter.size 600
+#control.inserter.step CONTROL_CYCLE
 
 control.mover example.update.control.NodeMover
 control.mover.coord_protocol localisation
@@ -130,22 +130,22 @@ control.neighobserver example.update.observation.NeighborsObservers
 control.neighobserver.neigbors_protocol neighbor
 control.neighobserver.step OBERVERS_CYCLE
 
-control.energyObs example.update.observation.SimpleEnergyObserver
-control.energyObs.energy_protocol energy
-control.energyObs.step OBERVERS_CYCLE
+#control.energyObs example.update.observation.SimpleEnergyObserver
+#control.energyObs.energy_protocol energy
+#control.energyObs.step OBERVERS_CYCLE
 
-control.rangeObs example.update.observation.RangeObserver
-control.rangeObs.protocol range
-control.rangeObs.step OBERVERS_CYCLE
+#control.rangeObs example.update.observation.RangeObserver
+#control.rangeObs.protocol range
+#control.rangeObs.step OBERVERS_CYCLE
 
-control.StorageObs example.update.observation.StorageObserver
-control.StorageObs.protocol disk_space
-control.StorageObs.step OBERVERS_CYCLE
+#control.StorageObs example.update.observation.StorageObserver
+#control.StorageObs.protocol disk_space
+#control.StorageObs.step OBERVERS_CYCLE
 
 ################ Order & timings ==============================
 
 order.protocol link,tr,energy,localisation,neighbor,gossip,supervisor,p2p_net_agent
-order.control coordObserver,neighobserver,dlProgress,energyObs
+order.control coordObserver,neighobserver,dlProgress
 
 
 # Observers should be run once more at the end
@@ -157,5 +157,5 @@ control.dbObserver.from 2
 control.dlProgress.from 2
 
 #inserter should run once
-control.inserter.from 900
+#control.inserter.from 900
 #control.inserter.until 520

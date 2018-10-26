@@ -64,12 +64,13 @@ public class GossipInitializer implements Control {
 
     /**
      * create a random SoftwarePackage with given parametters
+     *
      */
     private SoftwareJob randomJob(String name, String version){
 
         int qos = SoftwareJob.QOS_INSTALL_MANDATORY;
         int priority = SoftwareJob.PRIORITY_STANDARD;
-        int size = fileSize*1000;
+        int size = fileSize;
 
         SoftwareJob job = new SoftwareJob(name, version, LocalDateTime.MAX.toString(), priority, qos, size);
 
@@ -79,7 +80,8 @@ public class GossipInitializer implements Control {
 
     public boolean execute() {
 
-       for (int i = 0; i < Network.size(); i+=(Network.size()/2) ) {
+       //for (int i = 0; i < Network.size(); i+=(Network.size()/2) ) {
+            int i=1;
             Node n = Network.get(i);
 
             SoftwareJob job = randomJob("swag","1.1");
@@ -87,10 +89,11 @@ public class GossipInitializer implements Control {
 
             //trigger gossip
             EDSimulator.add(i*10, msg, n, gossipPID);
+           System.out.println("node "+n.getID()+" is the seed");
 
             //fill the data on the node
            ((NetworkAgent) n.getProtocol(networkPID)).completeJob(job);
-        }
+        //}
         return false;
     }
 
