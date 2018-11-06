@@ -11,3 +11,5 @@ figs/
 raw_dat/
 venv/
 getRand\(\)/
+
+*.gif

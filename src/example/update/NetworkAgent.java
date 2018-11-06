@@ -127,51 +127,72 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
 
+
+
     private Map.Entry<String, Integer> getDownload(Node localNode, int pid) {
 
-        /*//TODO something cleaner in a separate function.
-        boolean nothingToDo = true;
-        for (Map.Entry<String, boolean[]> localDl : localData) {
-            nothingToDo = isCompleted(localDl.getValue());
-        }
-        if (nothingToDo){
-            System.out.println("doing ntg");
-            return null;
-        }*/
+        //TODO something cleaner in a separate function.
+//        boolean nothingToDo = true;
+//        for (Map.Entry<String, boolean[]> localDl : localData) {
+//            nothingToDo = isCompleted(localDl.getValue());
+//        }
+//        if (nothingToDo){
+//            //System.out.println("doing ntg");
+//            return null;
+//        }
+
 
         if (!tellMeRequestSent) {
             DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, localNode, this.localData);
             requestNeighbors(localNode, askForData, pid);
             tellMeRequestSent = true;
-        } else if (tellMeRequestSent && ! otherNodesData.isEmpty()) {
+            return null;
+
+
+
+        }
+
+        if (otherNodesData.isEmpty()) {
+            clearOther();
+            tellMeRequestSent = false;
+        }
+
+        else  {
+
+            if(! otherNodesData.isEmpty()) {
 
                 List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesDataCopy = new LinkedList<>();
                 otherNodesDataCopy.addAll(otherNodesData);
-            for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
 
-                for (Map.Entry<String, boolean[]> localDl : localData) {
-                    // first we search a matching download.
-                    if (localDl.getKey().equals(availableDl.getValue().getKey())) {
+                for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
 
-                        //then select a piece to download among the offered ones.
-                        for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
-                            System.out.println("remote ("+availableDl.getKey().getID()+")="+availableDl.getValue().getValue()[i] +";"
-                                    +" local("+localNode.getID()+")="+ localDl.getValue()[i]);
+                    for (Map.Entry<String, boolean[]> localDl : localData) {
+                        // first we search a matching download.
+                        if (localDl.getKey().equals(availableDl.getValue().getKey())) {
+                            //then select a piece to download among the offered ones.
 
-                            if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
-                                System.out.println("getDownload in node "+localNode.getID()+" picked piece number: "+ i+" from node "+availableDl.getKey().getID());
+                            for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
+                                System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
+                                        + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
 
-                                return new SimpleEntry<>(localDl.getKey(), i);
+                                if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
+                                    System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
+                                    clearOther();
+                                    otherNodesDataCopy.clear();
+                                    return new SimpleEntry<>(localDl.getKey(), i);
+                                }
                             }
+                            // No useful piece in that answer
+                            otherNodesData.remove(availableDl);
                         }
-                        // No useful piece in that answer
-                        otherNodesData.remove(availableDl);
                     }
                 }
+                // received responses don't match anything locally or have nothing of interest. Reset everything.
+                clearOther();
+                otherNodesDataCopy.clear(); //Necessary?
+
+                tellMeRequestSent = false;
             }
-            // received responses don't match anything locally or have nothing of interest. Reset everything.
-            clearOther();
-            tellMeRequestSent = false;
         }
         return null;
     }
@@ -219,6 +240,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
             //clearOtherNodes();
 
+
+
             Map.Entry<String, Integer> toDownload = getDownload(localNode, pid);
 
 //            System.out.println("OTHER NODES: "+otherNodes);
@@ -256,13 +279,13 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 break;
 
             case DataMessage.TELLME:
+
                 DataMessage sendInfo = new DataMessage(DataMessage.LISTRESPONSE, event.hash, event.pieceNumber, localNode, localData);
                 EDSimulator.add(1, sendInfo, event.sender, pid);
                 break;
 
 
             case DataMessage.LISTRESPONSE:
-
                 for ( Map.Entry<String, boolean[]> senderDataEntry : event.offers){
                     otherNodesData.add(new SimpleEntry<>(event.sender, senderDataEntry));
                 }
