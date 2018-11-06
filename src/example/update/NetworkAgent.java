@@ -147,9 +147,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             requestNeighbors(localNode, askForData, pid);
             tellMeRequestSent = true;
             return null;
-
-
-
         }
 
         if (otherNodesData.isEmpty()) {
