@@ -145,7 +145,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             tellMeRequestSent = true;
         } else if (tellMeRequestSent && ! otherNodesData.isEmpty()) {
 
-            for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesData) {
+                List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesDataCopy = new LinkedList<>();
+                otherNodesDataCopy.addAll(otherNodesData);
+            for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
+
                 for (Map.Entry<String, boolean[]> localDl : localData) {
                     // first we search a matching download.
                     if (localDl.getKey().equals(availableDl.getValue().getKey())) {
