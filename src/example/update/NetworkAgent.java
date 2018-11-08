@@ -40,7 +40,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 
 
-    int alibaba = 1;
+    int methodForChoosingDownloadPiece = 1;
 
 
     // my local list <SoftwarePackage.ID, array>
@@ -166,46 +166,53 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 otherNodesDataCopy.addAll(otherNodesData);
 
 
-                switch (alibaba){
+                switch (methodForChoosingDownloadPiece){
+
+                    case 3:
+                        System.out.println(" RAREST");
+
+                        SimpleEntry out = rarestFirst(otherNodesDataCopy, localData);
+
+                        clearOther();
+                        otherNodesDataCopy.clear();
+
+                        return out;
+
 
                     case 1:
-                        return rarestFirst(otherNodesDataCopy, localData);
-
-                    case 2:
-
-                }
+                        for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
 
 
-
-                //System.out.println(Arrays.toString(otherNodesDataCopy.get(0).getValue().getValue()));
-
-                for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
-
-
-                    for (Map.Entry<String, boolean[]> localDl : localData) {
-                        // first we search a matching download.
-                        if (localDl.getKey().equals(availableDl.getValue().getKey())) {
-                            //then select a piece to download among the offered ones.
+                            for (Map.Entry<String, boolean[]> localDl : localData) {
+                                // first we search a matching download.
+                                if (localDl.getKey().equals(availableDl.getValue().getKey())) {
+                                    //then select a piece to download among the offered ones.
 
 
 
-                            for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
-                                System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
-                                        + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
+                                    for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
+                                        System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
+                                                + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
 
 
-                                if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
-                                    System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
-                                    clearOther();
-                                    otherNodesDataCopy.clear();
-                                    return new SimpleEntry<>(localDl.getKey(), i);
+                                        if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
+                                            System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
+                                            clearOther();
+                                            otherNodesDataCopy.clear();
+                                            methodForChoosingDownloadPiece++;
+                                            return new SimpleEntry<>(localDl.getKey(), i);
+                                        }
+                                    }
+                                    // No useful piece in that answer
+                                    otherNodesData.remove(availableDl);
                                 }
                             }
-                            // No useful piece in that answer
-                            otherNodesData.remove(availableDl);
+                            break;
                         }
-                    }
+
                 }
+
+                //System.out.println(Arrays.toString(otherNodesDataCopy.get(0).getValue().getValue()));
                 // received responses don't match anything locally or have nothing of interest. Reset everything.
                 clearOther();
                 otherNodesDataCopy.clear(); //Necessary?
@@ -220,17 +227,14 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
         List<Map.Entry<String,  int[]>> counter = new ArrayList<>();
         String minJob = null;
-        int minIndex = 10;
+        int minIndex = 0;
 
         for (Map.Entry<String, boolean[]> einsJob : local) {
             String job = einsJob.getKey();
             int[] arr;
             arr = new int[einsJob.getValue().length];
-            counter.add(new SimpleEntry(job, arr));
+            counter.add(new SimpleEntry<>(job, arr));
         }
-
-
-
 
         for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : val) {
 
@@ -254,34 +258,19 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             //System.out.println(Arrays.toString(counter.get(i).getValue()) + "  " + counter.get(i).getKey());
             for(int j = 0; j<counter.get(i).getValue().length; j++) {
                 if((minIndex > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)){
-                    minIndex = j;
-                    minJob = counter.get(i).getKey();
+                    if(localData.get(i).getValue()[j] == false) {
+                        minIndex = j;
+                        minJob = counter.get(i).getKey();
+                    }
                 }
             }
 
         }
         //System.out.println(minIndex+"    "+minJob + "   " + Arrays.toString(counter.toArray())+ "  " + Arrays.toString(counter.get(0).getValue()));
-        return new SimpleEntry(minJob, minJob);
+        System.out.println(minJob+ "   "+ minIndex);
+        return new SimpleEntry<>(minJob, minIndex);
     }
 
-
- /*
-        public void workWithOthers(List<Map.Entry<String, boolean[]>> otherNodes) {
-
-            for (int i = 0; i < this.otherNodes.size(); i++) {
-
-                if(other.isEmpty() || ! other.contains(this.otherNodes.get(i))) {
-                    other.add(new SimpleEntry(this.otherNodes.get(i).getKey(), new int[otherNodes.get(i).getValue().length]));
-                    //Arrays.fill(other.get(i).getValue(), 0);
-                }
-                    for (int j = 0; j < this.otherNodes.get(i).getValue().length; j++) {
-
-                        if(this.otherNodes.get(i).getValue()[j] == true) {other.get(i).getValue()[j] = other.get(i).getValue()[j]+1;}
-
-                    }
-            }
-        }
-        */
 
 
     private void usePower(int multiplier, Node node){
