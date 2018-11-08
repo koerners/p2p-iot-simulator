@@ -39,6 +39,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     private boolean downloading = false;
 
 
+
+    int alibaba = 1;
+
+
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
     List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesData;
@@ -161,16 +165,34 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesDataCopy = new LinkedList<>();
                 otherNodesDataCopy.addAll(otherNodesData);
 
+
+                switch (alibaba){
+
+                    case 1:
+                        return rarestFirst(otherNodesDataCopy, localData);
+
+                    case 2:
+
+                }
+
+
+
+                //System.out.println(Arrays.toString(otherNodesDataCopy.get(0).getValue().getValue()));
+
                 for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
+
 
                     for (Map.Entry<String, boolean[]> localDl : localData) {
                         // first we search a matching download.
                         if (localDl.getKey().equals(availableDl.getValue().getKey())) {
                             //then select a piece to download among the offered ones.
 
+
+
                             for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
                                 System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
                                         + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
+
 
                                 if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
                                     System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
@@ -192,6 +214,54 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             }
         }
         return null;
+    }
+
+    private SimpleEntry rarestFirst(List<Map.Entry<Node, Map.Entry<String, boolean[]>>> val, List<Map.Entry<String, boolean[]>> local) {
+
+        List<Map.Entry<String,  int[]>> counter = new ArrayList<>();
+        String minJob = null;
+        int minIndex = 10;
+
+        for (Map.Entry<String, boolean[]> einsJob : local) {
+            String job = einsJob.getKey();
+            int[] arr;
+            arr = new int[einsJob.getValue().length];
+            counter.add(new SimpleEntry(job, arr));
+        }
+
+
+
+
+        for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : val) {
+
+            for (Map.Entry<String, int[]> cow : counter) {
+                // first we search a matching download.
+                if (cow.getKey().equals(availableDl.getValue().getKey())) {
+                    //then select a piece to download among the offered ones.
+
+                    for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
+
+                        if (availableDl.getValue().getValue()[i] == true) {
+                            cow.getValue()[i]++;
+                            //System.out.println("COUNTER:" + Arrays.toString(cow.getValue()) + cow.getKey());
+
+                        }
+                    }
+                }
+            }
+        }
+        for(int i = 0 ; i < counter.size(); i++){
+            //System.out.println(Arrays.toString(counter.get(i).getValue()) + "  " + counter.get(i).getKey());
+            for(int j = 0; j<counter.get(i).getValue().length; j++) {
+                if((minIndex > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)){
+                    minIndex = j;
+                    minJob = counter.get(i).getKey();
+                }
+            }
+
+        }
+        //System.out.println(minIndex+"    "+minJob + "   " + Arrays.toString(counter.toArray())+ "  " + Arrays.toString(counter.get(0).getValue()));
+        return new SimpleEntry(minJob, minJob);
     }
 
 
