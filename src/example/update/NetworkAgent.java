@@ -39,9 +39,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     private boolean downloading = false;
 
 
-    int methodForChoosingDownloadPiece = 2;
-
-
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
     List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesData;
@@ -99,30 +96,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         }
     }
 
-//    private Map.Entry<String, Integer> getRandomDownload(Node node, int pid, List<Map.Entry<String, boolean[]>> localData) {
-//
-//       for (int i = 0; i < this.localData.size(); i++) {
-//           int rand = CommonState.r.nextInt(this.localData.get(i).getValue().length);
-//
-//           for (int j = rand; j < this.localData.get(i).getValue().length; j++) {
-//               if (this.localData.get(i).getValue()[j] == false) {
-//                   return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-//               }
-//           }
-//           for (int j = 0; j < rand; j++) {
-//               if (this.localData.get(i).getValue()[j] == false) {
-//                   return new SimpleEntry<>(this.localData.get(i).getKey(), j);
-//               }
-//           }
-//       }
-//       return null;
-//    }
-
-//    public void clearOtherNodes(){
-//        if(otherNodes!=null) {
-//            if (!otherNodes.isEmpty()) otherNodes.clear();
-//        }
-//    }
 
     public void clearOther(){
         if(otherNodesData!=null) {
@@ -169,10 +142,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 otherNodesDataCopy.addAll(otherNodesData);
 
 
-                //TODO: When do we switch from one method to the other?
-
-
-                switch (methodForChoosingDownloadPiece){
+                switch (methodForChoosingDownloadPiece()){
                     case 1:
                         //get what's available
                         for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
@@ -187,7 +157,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 //                                                + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
 
                                         if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
-                                            System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
+                                            System.out.println("Get available in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
                                             clearOther();
                                             otherNodesDataCopy.clear();
                                             return new SimpleEntry<>(localDl.getKey(), i);
@@ -248,7 +218,17 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                         break;
 
 
-                        //TODO: Endgame (request missing pieces
+                    case 3:
+                        //request missing pieces
+
+                        for (int i = 0; i < this.localData.size(); i++) {
+                            for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
+                                if (this.localData.get(i).getValue()[j] == false) {
+                                    System.out.println("Endgame " + localData.get(i).getKey() + "  " + j);
+                                    return new SimpleEntry<>(this.localData.get(i).getKey(), j);
+                                }
+                            }
+                        }
 
                 }
 
@@ -261,6 +241,18 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             }
         }
         return null;
+    }
+
+    private int  methodForChoosingDownloadPiece() {
+        //TODO: Something more sophisticated
+        //System.out.println("JOB PROGRESS: "+jobProgress());
+
+        for (int i = 0; i<jobProgress().size(); i++){
+            if(((int) jobProgress().get(i)) < 20) return 1;
+            if(((int) jobProgress().get(i)) < 80) return 2;
+            if(((int) jobProgress().get(i)) <= 100) return 3;
+        }
+        return 0;
     }
 
 
