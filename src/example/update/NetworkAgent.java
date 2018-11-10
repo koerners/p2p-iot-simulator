@@ -246,13 +246,19 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     private int  methodForChoosingDownloadPiece() {
         //TODO: Something more sophisticated
         //System.out.println("JOB PROGRESS: "+jobProgress());
+        int allProgress = 0;
 
         for (int i = 0; i<jobProgress().size(); i++){
-            if(((int) jobProgress().get(i)) < 20) return 1;
-            if(((int) jobProgress().get(i)) < 80) return 2;
-            if(((int) jobProgress().get(i)) <= 100) return 3;
+            allProgress += (int) jobProgress().get(i);
         }
-        return 0;
+        allProgress= allProgress / jobProgress().size();
+        //System.out.println("PROGRESS: " +allProgress);
+
+        if(allProgress < 20) return 1;
+        if(allProgress < 80) return 2;
+        if(allProgress <= 100) return 3;
+
+        else return 0;
     }
 
 
