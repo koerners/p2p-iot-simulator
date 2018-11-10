@@ -229,7 +229,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                                 }
                             }
                         }
-
+                        break;
                 }
 
 

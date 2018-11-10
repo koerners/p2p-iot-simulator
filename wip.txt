@@ -6,12 +6,12 @@ OBERVERS_CYCLE 50
 PROTOCOL_CYCLE 20
 CONTROL_CYCLE 50
 
-network.size 5
+network.size 8
 map_size 1000
 #random.seed 1234567890
 random.seed 22222222748
 
-simulation.endtime 5000
+simulation.endtime 10000
 simulation.logtime 50
 
 
@@ -28,7 +28,7 @@ init.1.min_node_speed 10
 init.2 example.update.initialisation.GossipInitializer
 init.2.gossip_protocol gossip
 init.2.network_protocol p2p_net_agent
-init.2.file_size 250
+init.2.file_size 1000
 
 init.3 example.update.initialisation.BandwidthInitializer
 init.3.protocol bandwidth
