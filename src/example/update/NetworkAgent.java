@@ -39,8 +39,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     private boolean downloading = false;
 
 
-
-    int methodForChoosingDownloadPiece = 1;
+    int methodForChoosingDownloadPiece = 2;
 
 
     // my local list <SoftwarePackage.ID, array>
@@ -124,6 +123,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 //            if (!otherNodes.isEmpty()) otherNodes.clear();
 //        }
 //    }
+
     public void clearOther(){
         if(otherNodesData!=null) {
             otherNodesData.clear();
@@ -168,31 +168,94 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesDataCopy = new LinkedList<>();
                 otherNodesDataCopy.addAll(otherNodesData);
 
-                rarestFirst(otherNodesDataCopy, localData);
 
-                for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
+                //TODO: When do we switch from one method to the other?
 
-                    for (Map.Entry<String, boolean[]> localDl : localData) {
-                        // first we search a matching download.
-                        if (localDl.getKey().equals(availableDl.getValue().getKey())) {
-                            //then select a piece to download among the offered ones.
 
-                            for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
-                                System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
-                                        + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
+                switch (methodForChoosingDownloadPiece){
+                    case 1:
+                        //get what's available
+                        for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
 
-                                if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
-                                    System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
-                                    clearOther();
-                                    otherNodesDataCopy.clear();
-                                    return new SimpleEntry<>(localDl.getKey(), i);
+                            for (Map.Entry<String, boolean[]> localDl : localData) {
+                                // first we search a matching download.
+                                if (localDl.getKey().equals(availableDl.getValue().getKey())) {
+                                    //then select a piece to download among the offered ones.
+
+                                    for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
+                                        System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
+                                                + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
+
+                                        if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
+                                            System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
+                                            clearOther();
+                                            otherNodesDataCopy.clear();
+                                            return new SimpleEntry<>(localDl.getKey(), i);
+                                        }
+                                    }
+                                    // No useful piece in that answer
+                                    otherNodesData.remove(availableDl);
                                 }
                             }
-                            // No useful piece in that answer
-                            otherNodesData.remove(availableDl);
                         }
-                    }
+                        break;
+
+                    case 2:
+                        //Rarest first
+                        List<Map.Entry<String,  int[]>> counter = new ArrayList<>();
+                        String minJob = null;
+                        int minIndex = 0;
+                        int min = 2;
+
+                        for (Map.Entry<String, boolean[]> einsJob : localData) {
+                            String job = einsJob.getKey();
+                            int[] arr;
+                            arr = new int[einsJob.getValue().length];
+                            counter.add(new SimpleEntry<>(job, arr));
+                        }
+
+                        for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
+
+                            for (Map.Entry<String, int[]> cow : counter) {
+                                // first we search a matching download.
+                                if (cow.getKey().equals(availableDl.getValue().getKey())) {
+                                    //then select a piece to download among the offered ones.
+
+                                    for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
+
+                                        if (availableDl.getValue().getValue()[i] == true) {
+                                            cow.getValue()[i]++;
+                                            //System.out.println("COUNTER:" + Arrays.toString(cow.getValue()) + cow.getKey());
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        for(int i = 0 ; i < counter.size(); i++){
+                            //System.out.println(Arrays.toString(counter.get(i).getValue()) + "  " + counter.get(i).getKey());
+                            for(int j = 0; j<counter.get(i).getValue().length; j++) {
+                                if((min > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)){
+                                    if(localData.get(i).getValue()[j] == false) {
+                                        min = counter.get(i).getValue()[j];
+                                        minIndex = j;
+                                        minJob = counter.get(i).getKey();
+                                    }
+                                }
+                            }
+
+                        }
+                        //System.out.println(minIndex+"    "+minJob + "   " + Arrays.toString(counter.toArray())+ "  " + Arrays.toString(counter.get(0).getValue()));
+                        if(minJob != null) {
+                            System.out.println("-------------->_ Least available: JOB: "+ minJob+ " INDEX:  "+ minIndex + " VALUE:  " + min);
+                            return new SimpleEntry<>(minJob, minIndex);
+                        }
+
+                        break;
+
                 }
+
+
                 // received responses don't match anything locally or have nothing of interest. Reset everything.
                 clearOther();
                 otherNodesDataCopy.clear(); //Necessary?
@@ -202,63 +265,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         }
         return null;
     }
-
-    private Map.Entry<String, Integer> rarestFirst(List<Map.Entry<Node, Map.Entry<String, boolean[]>>> val, List<Map.Entry<String, boolean[]>> local) {
-
-        List<Map.Entry<String,  int[]>> counter = new ArrayList<>();
-        String minJob = null;
-        int minIndex = 0;
-        int min = 2;
-
-        for (Map.Entry<String, boolean[]> einsJob : local) {
-            String job = einsJob.getKey();
-            int[] arr;
-            arr = new int[einsJob.getValue().length];
-            counter.add(new SimpleEntry<>(job, arr));
-        }
-
-        for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : val) {
-
-            for (Map.Entry<String, int[]> cow : counter) {
-                // first we search a matching download.
-                if (cow.getKey().equals(availableDl.getValue().getKey())) {
-                    //then select a piece to download among the offered ones.
-
-                    for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
-
-                        if (availableDl.getValue().getValue()[i] == true) {
-                            cow.getValue()[i]++;
-                            //System.out.println("COUNTER:" + Arrays.toString(cow.getValue()) + cow.getKey());
-
-                        }
-                    }
-                }
-            }
-        }
-        for(int i = 0 ; i < counter.size(); i++){
-            //System.out.println(Arrays.toString(counter.get(i).getValue()) + "  " + counter.get(i).getKey());
-            for(int j = 0; j<counter.get(i).getValue().length; j++) {
-                if((min > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)){
-                    if(localData.get(i).getValue()[j] == false) {
-                        min = counter.get(i).getValue()[j];
-                        minIndex = j;
-                        minJob = counter.get(i).getKey();
-                    }
-                }
-            }
-
-        }
-        //System.out.println(minIndex+"    "+minJob + "   " + Arrays.toString(counter.toArray())+ "  " + Arrays.toString(counter.get(0).getValue()));
-        if(minJob != null) {
-            System.out.println("-------------->_ Least often available: JOB: "+ minJob+ " INDEX:  "+ minIndex + " VALUE:  " + min);
-
-            return new SimpleEntry<>(minJob, minIndex);
-
-        }
-        else
-            return null;
-    }
-
 
 
     private void usePower(int multiplier, Node node){
