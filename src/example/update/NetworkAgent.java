@@ -183,8 +183,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                                     //then select a piece to download among the offered ones.
 
                                     for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
-                                        System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
-                                                + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
+//                                        System.out.println("remote (" + availableDl.getKey().getID() + ")=" + availableDl.getValue().getValue()[i] + ";"
+//                                                + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
 
                                         if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
                                             System.out.println("getDownload in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
@@ -217,15 +217,11 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                         for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
 
                             for (Map.Entry<String, int[]> cow : counter) {
-                                // first we search a matching download.
                                 if (cow.getKey().equals(availableDl.getValue().getKey())) {
-                                    //then select a piece to download among the offered ones.
-
                                     for (int i = 0; i < availableDl.getValue().getValue().length; i++) {
 
                                         if (availableDl.getValue().getValue()[i] == true) {
                                             cow.getValue()[i]++;
-                                            //System.out.println("COUNTER:" + Arrays.toString(cow.getValue()) + cow.getKey());
 
                                         }
                                     }
@@ -233,7 +229,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                             }
                         }
                         for(int i = 0 ; i < counter.size(); i++){
-                            //System.out.println(Arrays.toString(counter.get(i).getValue()) + "  " + counter.get(i).getKey());
                             for(int j = 0; j<counter.get(i).getValue().length; j++) {
                                 if((min > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)){
                                     if(localData.get(i).getValue()[j] == false) {
@@ -245,13 +240,15 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                             }
 
                         }
-                        //System.out.println(minIndex+"    "+minJob + "   " + Arrays.toString(counter.toArray())+ "  " + Arrays.toString(counter.get(0).getValue()));
                         if(minJob != null) {
-                            System.out.println("-------------->_ Least available: JOB: "+ minJob+ " INDEX:  "+ minIndex + " VALUE:  " + min);
+                            System.out.println("Rarest first: JOB: "+ minJob+ " INDEX:  "+ minIndex + " VALUE:  " + min);
                             return new SimpleEntry<>(minJob, minIndex);
                         }
 
                         break;
+
+
+                        //TODO: Endgame (request missing pieces
 
                 }
 
