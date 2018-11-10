@@ -175,7 +175,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                         List<Map.Entry<String,  int[]>> counter = new ArrayList<>();
                         String minJob = null;
                         int minIndex = 0;
-                        int min = 2;
+                        int min =  Integer.MAX_VALUE;
 
                         for (Map.Entry<String, boolean[]> einsJob : localData) {
                             String job = einsJob.getKey();
