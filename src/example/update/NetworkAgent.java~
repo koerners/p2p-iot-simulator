@@ -38,8 +38,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     private boolean downloading = false;
 
-    int countMessages = 0;
-
 
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
@@ -124,7 +122,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         if (!tellMeRequestSent) {
             DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, localNode, this.localData);
             requestNeighbors(localNode, askForData, pid);
-            //commonstate.gettime
             tellMeRequestSent = true;
             return null;
 
@@ -161,8 +158,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                                         if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
                                             System.out.println("Get available in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
-                                            //clearOther();
-                                            //otherNodesDataCopy.clear();
+                                            clearOther();
+                                            otherNodesDataCopy.clear();
                                             return new SimpleEntry<>(localDl.getKey(), i);
                                         }
                                     }
@@ -311,8 +308,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         if (event.sender == localNode){
             return;
         }
-        countMessages++;
-        System.out.println("COUNT: " + countMessages);
+
         switch (event.type) {
 
             case DataMessage.REQUEST:
