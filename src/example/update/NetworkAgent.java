@@ -320,7 +320,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     // is this piece complete
                     if (localData.get(getLocalIndex(event.hash)).getValue()[event.pieceNumber]) {
-                        DataMessage reply = new DataMessage(DataMessage.OFFER, event.hash, event.pieceNumber, localNode, localData);
+                        DataMessage reply = new DataMessage(DataMessage.OFFER, event.hash, event.pieceNumber, localNode, null);
                         EDSimulator.add(1, reply, event.sender, pid);
                         usePower(1, localNode);
                     }
@@ -364,7 +364,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     long bdw = localUplink <= remoteDownlink ? localUplink : remoteDownlink;
 
-                    dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, localData);
+                    dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
                     //consume energy
                     usePower((int)(pieceSize/bdw), localNode);
@@ -372,7 +372,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 } else { // send a cancel message
                     DataMessage dataMsg;
 
-                    dataMsg = new DataMessage(DataMessage.CANCEL, event.hash, event.pieceNumber, localNode, localData);
+                    dataMsg = new DataMessage(DataMessage.CANCEL, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(1, dataMsg, event.sender, pid);
                     usePower(1, localNode);
                 }
@@ -386,7 +386,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 this.downloading = false;
 
                 //send ack
-                DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode, localData);
+                DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode, null);
                 EDSimulator.add(1, msg, event.sender, pid);
                 usePower(1, localNode);
                 break;
