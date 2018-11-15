@@ -29,6 +29,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     // Fields
     // ------------------------------------------------------------------------
 
+    public static long countMessages = 0;
+
     private final int neighborhoodPID;
     private final int powerSourcePID;
 
@@ -38,7 +40,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     private boolean downloading = false;
 
-    int countMessages = 0;
 
 
     // my local list <SoftwarePackage.ID, array>
@@ -312,7 +313,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             return;
         }
         countMessages++;
-        System.out.println("COUNT: " + countMessages);
+        //System.out.println("COUNT: " + countMessages);
         switch (event.type) {
 
             case DataMessage.REQUEST:
