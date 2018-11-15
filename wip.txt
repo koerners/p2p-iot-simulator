@@ -142,6 +142,10 @@ control.StorageObs example.update.observation.StorageObserver
 control.StorageObs.protocol disk_space
 control.StorageObs.step OBERVERS_CYCLE
 
+#control.messageObs example.update.observation.MessageObserver
+#control.StorageObs.protocol message     ???
+#control.rangeObs.step OBERVERS_CYCLE
+
 ################ Order & timings ==============================
 
 order.protocol link,tr,energy,localisation,neighbor,gossip,supervisor,p2p_net_agent
