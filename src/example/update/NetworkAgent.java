@@ -29,7 +29,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     // Fields
     // ------------------------------------------------------------------------
 
-    public static long countMessages = 0;
+    public long countMessages = 0;
 
     private final int neighborhoodPID;
     private final int powerSourcePID;
@@ -65,6 +65,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
         localData = new ArrayList<>();
         otherNodesData = new ArrayList<>();
+
     }
 
 
@@ -313,7 +314,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             return;
         }
         countMessages++;
-        //System.out.println("COUNT: " + countMessages);
         switch (event.type) {
 
             case DataMessage.REQUEST:

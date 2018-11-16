@@ -63,12 +63,12 @@ public class MessageObserver implements Control {
     // Control interface method. does the file handling
     public boolean execute() {
         StringBuilder log = new StringBuilder();
-        log.append("Node;MessagesSent" + System.lineSeparator());
+        log.append("Node;MessagesRec" + System.lineSeparator());
 
         for (int i = 0; i < Network.size(); i++) {
 
-            log.append(Network.get(i).getID() +  ";" + NetworkAgent.countMessages).append(System.lineSeparator());
-
+            NetworkAgent proto = (NetworkAgent) Network.get(i).getProtocol(pid);
+            log.append(Network.get(i).getID() +  ";" + proto.countMessages).append(System.lineSeparator());
         }
         writer.write(log.toString());
 
