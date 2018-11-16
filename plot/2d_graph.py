@@ -4,7 +4,7 @@ import argparse
 import os
 import math
 
-interval = 10
+interval = 2
 
 def plotter(file_seq, path):
     
@@ -12,6 +12,8 @@ def plotter(file_seq, path):
         neighbors = path+"/neighbors_dump"+file_seq+".dat"
         print("Processing "+"/progress_dump"+file_seq+".dat")
         progress = pandas.read_csv(path+"/progress_dump"+file_seq+".dat", delimiter=';')
+        sentData = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
+
 
         #define subplot graph size
         hauteur = math.floor(math.sqrt(len(progress.columns)))
@@ -34,7 +36,7 @@ def plotter(file_seq, path):
                                                 plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
 
                                 # Plot nodes
-                                plt.scatter(coord.iloc[:,1], coord.iloc[:,2], s=9, zorder=1, c=progress.iloc[:,key_index], vmin=0, vmax=100)
+                                plt.scatter(coord.iloc[:,1], coord.iloc[:,2], s=9+(sentData.iloc[:,1]/100), zorder=1, c=progress.iloc[:,key_index], vmin=0, vmax=100)
                                 plt.xticks([], [])
                                 plt.yticks([], [])
                                 plt.xlim(0,1000)
