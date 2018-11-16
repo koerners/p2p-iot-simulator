@@ -30,6 +30,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     // ------------------------------------------------------------------------
 
     public long countMessages = 0;
+    public long sentData = 0;
+
 
     private final int neighborhoodPID;
     private final int powerSourcePID;
@@ -365,6 +367,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     long bdw = localUplink <= remoteDownlink ? localUplink : remoteDownlink;
 
+                    sentData+=pieceSize;
+
                     dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
                     //consume energy
@@ -385,7 +389,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                     localData.get(getLocalIndex(event.hash)).getValue()[event.pieceNumber] = true;
                 }
                 this.downloading = false;
-
                 //send ack
                 DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode, null);
                 EDSimulator.add(1, msg, event.sender, pid);
