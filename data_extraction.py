@@ -11,6 +11,24 @@ interval = 20
 
 f = open("log.txt", "w+")
 
+def messagesRec(file_seq, path):
+
+    messages = pandas.read_csv(
+        path + "/message_dump" + file_seq + ".dat", delimiter=';')
+
+    # print(progress)
+
+    return messages
+
+def dataSent(file_seq, path):
+
+    data = pandas.read_csv(
+        path + "/sentdata_dump" + file_seq + ".dat", delimiter=';')
+
+    # print(progress)
+
+    return data
+
 
 def progressSinceLastInterval(file_seq, path, id, packageNr):
 
@@ -40,7 +58,7 @@ def progressSinceLastInterval(file_seq, path, id, packageNr):
       return
 
 
-def printTable(coord, progress, storage, file_seq, path):
+def printTable(coord, progress, storage, data, messages, file_seq, path):
 
     print("--------------------------------------------------------")
     print("Looking @ " + file_seq)
@@ -49,7 +67,7 @@ def printTable(coord, progress, storage, file_seq, path):
     f.write("\n Looking @ " + file_seq + "\n")
     t = Texttable()
     t.add_rows(
-        [['Node ID', 'X', 'Y', 'Storage', 'Progress', '+%(1)', '+%(2)', 'Neighbors']])
+        [['Node ID', 'X', 'Y', 'Storage', 'Progress', '+%(1)', '+%(2)','Data Sent', 'Mes. Rec.', 'Neighbors']])
     A = 0
 
     neighbors = path + "/neighbors_dump" + file_seq + ".dat"
@@ -58,7 +76,7 @@ def printTable(coord, progress, storage, file_seq, path):
 
         neighbors_list = line.rstrip(';\n').split(';')
         t.add_row([coord.iloc[A, 0], coord.iloc[A, 1], coord.iloc[A, 2], storage.iloc[A, 1], progress.iloc[
-                  A, :], progressSinceLastInterval(file_seq, path, A, 1), progressSinceLastInterval(file_seq, path, A, 2), neighbors_list])
+                  A, :], progressSinceLastInterval(file_seq, path, A, 1), progressSinceLastInterval(file_seq, path, A, 2), data.iloc[A,1], messages.iloc[A,1], neighbors_list ])
         A += 1
 
     print(t.draw())
@@ -114,5 +132,5 @@ if __name__ == '__main__':
         if int(seq) % interval == 0:
 
             printTable(getCoords(seq, args.path),  getProgress(
-                seq, args.path), getStorage(seq, args.path), seq, args.path)
+                seq, args.path), getStorage(seq, args.path), dataSent(seq, args.path), messagesRec(seq, args.path),  seq, args.path)
     f.close()
