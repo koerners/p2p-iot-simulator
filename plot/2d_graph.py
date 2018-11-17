@@ -3,8 +3,13 @@ import matplotlib.pyplot as plt
 import argparse
 import os
 import math
-
+#Sets interval
 interval = 2
+
+#Sets scale for how quickly nodes get bigger when they send data
+scale = 100
+
+
 
 def plotter(file_seq, path):
     
@@ -36,7 +41,7 @@ def plotter(file_seq, path):
                                                 plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
 
                                 # Plot nodes
-                                plt.scatter(coord.iloc[:,1], coord.iloc[:,2], s=9+(sentData.iloc[:,1]/100), zorder=1, c=progress.iloc[:,key_index], vmin=0, vmax=100)
+                                plt.scatter(coord.iloc[:,1], coord.iloc[:,2], s=9+(sentData.iloc[:,1]/scale), zorder=1, c=progress.iloc[:,key_index], vmin=0, vmax=100)
                                 plt.xticks([], [])
                                 plt.yticks([], [])
                                 plt.xlim(0,1000)

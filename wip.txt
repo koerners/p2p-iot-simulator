@@ -146,9 +146,9 @@ control.messageObs example.update.observation.MessageObserver
 control.messageObs.protocol p2p_net_agent
 control.messageObs.step OBERVERS_CYCLE
 
-control.messageObs example.update.observation.SentDataObserver
-control.messageObs.protocol p2p_net_agent
-control.messageObs.step OBERVERS_CYCLE
+control.dataObs example.update.observation.SentDataObserver
+control.dataObs.protocol p2p_net_agent
+control.dataObs.step OBERVERS_CYCLE
 
 ################ Order & timings ==============================
 
