@@ -34,7 +34,7 @@ def plotter(file_seq, path):
                 for large in range(1,largeur+1):
                         if (key_index < len(progress.columns)-1):
                                 plt.subplot(hauteur, largeur, (largeur*haut)+(large), aspect='equal')
-                                plt.title(progress.columns[key_index])
+                                plt.title(progress.columns[key_index], fontsize=3)
                                 plt.axis('square')
 
                                 #plot neigbors relationships
@@ -46,11 +46,9 @@ def plotter(file_seq, path):
                                                 plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
 
                                 # Plot nodes
-
-
-                                plt.scatter(coord.iloc[:, 1], coord.iloc[:, 2], s=2 + (3 * rate), zorder=1,
+                                plt.scatter(coord.iloc[:, 1], coord.iloc[:, 2], s=2 + (1 * rate), zorder=1,
                                             c=progress.iloc[:, key_index], vmin=0, vmax=100)
-                                plt.colorbar();
+                                #plt.colorbar()
                                 plt.xticks([], [])
                                 plt.yticks([], [])
                                 plt.xlim(0,1000)
@@ -58,7 +56,7 @@ def plotter(file_seq, path):
 
                                 key_index+=1
         #plt.subplots_adjust()
-        #plt.tight_layout()
+        plt.tight_layout()
         #plt.savefig("figs/"+seq+'.pdf')
         plt.savefig("figs/progress"+seq+'.png', dpi = (200))
         plt.close()
