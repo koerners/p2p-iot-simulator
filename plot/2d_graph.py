@@ -4,10 +4,10 @@ import argparse
 import os
 import math
 #Sets interval
-interval = 2
+interval = 40
 
-#Sets scale for how quickly nodes get bigger when they send data
-scale = 100
+# Sets scale for how quickly nodes get bigger when they send data, the higher the less impact
+scale = 8000
 
 
 
@@ -42,13 +42,14 @@ def plotter(file_seq, path):
 
                                 # Plot nodes
                                 plt.scatter(coord.iloc[:,1], coord.iloc[:,2], s=9+(sentData.iloc[:,1]/scale), zorder=1, c=progress.iloc[:,key_index], vmin=0, vmax=100)
+                                plt.colorbar();
                                 plt.xticks([], [])
                                 plt.yticks([], [])
                                 plt.xlim(0,1000)
                                 plt.ylim(0,1000)
 
                                 key_index+=1
-        #plt.subplots_adjust() 
+        #plt.subplots_adjust()
         #plt.tight_layout()
         #plt.savefig("figs/"+seq+'.pdf')
         plt.savefig("figs/progress"+seq+'.png', dpi = (200))

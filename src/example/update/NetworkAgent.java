@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 
 
-public class NetworkAgent implements EDProtocol, CDProtocol{
+public class NetworkAgent implements EDProtocol, CDProtocol {
 
     // ------------------------------------------------------------------------
     // Parameters
@@ -28,33 +28,21 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     // ------------------------------------------------------------------------
     // Fields
     // ------------------------------------------------------------------------
-
-    public long countMessages = 0;
-    public long sentData = 0;
-
-
     private final int neighborhoodPID;
     private final int powerSourcePID;
-
-
-    private int bandwidthPid;
     private final int pieceSize;
-
-    private boolean downloading = false;
-
-
-
+    public long countMessages = 0;
+    public long sentData = 0;
+    public long overhead = 0;
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
     List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesData;
-    //List<Map.Entry<String, int[]>> other;
-
     boolean tellMeRequestSent = false;
-
-    public long overhead =0;
-
+    //List<Map.Entry<String, int[]>> other;
     // constructor
     String prefix;
+    private int bandwidthPid;
+    private boolean downloading = false;
 
     public NetworkAgent(String prefix) {
         this.prefix = prefix;
@@ -62,8 +50,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         // get PIDs of SoftwareDB and Downloader
         neighborhoodPID = Configuration.getPid(prefix + "." + NEIGH_PROT);
         powerSourcePID = Configuration.getPid(prefix + "." + ENERGY_PROT);
-        bandwidthPid = Configuration.getPid(prefix + "." +BANDW);
-        pieceSize = Configuration.getInt(prefix + "." +PIECE_SIZE);
+        bandwidthPid = Configuration.getPid(prefix + "." + BANDW);
+        pieceSize = Configuration.getInt(prefix + "." + PIECE_SIZE);
 
         localData = new ArrayList<>();
         otherNodesData = new ArrayList<>();
@@ -71,8 +59,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
 
-
-    public NetworkAgent clone(){
+    public NetworkAgent clone() {
         return new NetworkAgent(prefix);
     }
 
@@ -82,19 +69,19 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
     public void update(List<SoftwareJob> packages) {
 
-        if(localData.isEmpty()) {
+        if (localData.isEmpty()) {
             localData.add(new SimpleEntry(packages.get(0).getId(),
-                    new boolean[(int) Math.ceil( (double)packages.get(0).size / (double)pieceSize)]));
+                    new boolean[(int) Math.ceil((double) packages.get(0).size / (double) pieceSize)]));
             Arrays.fill(localData.get(0).getValue(), Boolean.FALSE);
         } else {
             // update the local list.
             for (int i = 0; i < packages.size(); i++) {
                 for (int j = 0; j < localData.size(); j++) {
                     if (packages.get(i).getId().equals(localData.get(j).getKey())) {
-                            localData.add(i, localData.remove(j));
-                    } else if (! localDataContains(packages.get(i).getId())) {
+                        localData.add(i, localData.remove(j));
+                    } else if (!localDataContains(packages.get(i).getId())) {
                         localData.add(i, new SimpleEntry(packages.get(i).getId(),
-                                new boolean[(int) Math.ceil( (double)packages.get(i).size / (double)pieceSize)]));
+                                new boolean[(int) Math.ceil((double) packages.get(i).size / (double) pieceSize)]));
                         Arrays.fill(localData.get(i).getValue(), Boolean.FALSE);
                     }
                 }
@@ -103,13 +90,11 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
 
-    public void clearOther(){
-        if(otherNodesData!=null) {
+    public void clearOther() {
+        if (otherNodesData != null) {
             otherNodesData.clear();
         }
     }
-
-
 
 
     private Map.Entry<String, Integer> getDownload(Node localNode, int pid) {
@@ -133,23 +118,20 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             return null;
 
 
-
         }
 
         if (otherNodesData.isEmpty()) {
             clearOther();
             tellMeRequestSent = false;
-        }
+        } else {
 
-        else  {
-
-            if(! otherNodesData.isEmpty()) {
+            if (!otherNodesData.isEmpty()) {
 
                 List<Map.Entry<Node, Map.Entry<String, boolean[]>>> otherNodesDataCopy = new LinkedList<>();
                 otherNodesDataCopy.addAll(otherNodesData);
 
 
-                switch (methodForChoosingDownloadPiece()){
+                switch (methodForChoosingDownloadPiece()) {
                     case 1:
                         //get what's available
                         for (Map.Entry<Node, Map.Entry<String, boolean[]>> availableDl : otherNodesDataCopy) {
@@ -179,10 +161,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     case 2:
                         //Rarest first
-                        List<Map.Entry<String,  int[]>> counter = new ArrayList<>();
+                        List<Map.Entry<String, int[]>> counter = new ArrayList<>();
                         String minJob = null;
                         int minIndex = 0;
-                        int min =  Integer.MAX_VALUE;
+                        int min = Integer.MAX_VALUE;
 
                         for (Map.Entry<String, boolean[]> einsJob : localData) {
                             String job = einsJob.getKey();
@@ -205,10 +187,10 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                                 }
                             }
                         }
-                        for(int i = 0 ; i < counter.size(); i++){
-                            for(int j = 0; j<counter.get(i).getValue().length; j++) {
-                                if((min > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)){
-                                    if(localData.get(i).getValue()[j] == false) {
+                        for (int i = 0; i < counter.size(); i++) {
+                            for (int j = 0; j < counter.get(i).getValue().length; j++) {
+                                if ((min > counter.get(i).getValue()[j]) && (counter.get(i).getValue()[j] > 0)) {
+                                    if (localData.get(i).getValue()[j] == false) {
                                         min = counter.get(i).getValue()[j];
                                         minIndex = j;
                                         minJob = counter.get(i).getKey();
@@ -217,8 +199,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                             }
 
                         }
-                        if(minJob != null) {
-                            System.out.println("Rarest first: JOB: "+ minJob+ " INDEX:  "+ minIndex + " VALUE:  " + min);
+                        if (minJob != null) {
+                            System.out.println("Rarest first: JOB: " + minJob + " INDEX:  " + minIndex + " VALUE:  " + min);
                             return new SimpleEntry<>(minJob, minIndex);
                         }
 
@@ -250,36 +232,36 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         return null;
     }
 
-    private int  methodForChoosingDownloadPiece() {
+    private int methodForChoosingDownloadPiece() {
         //TODO: Something more sophisticated
         //System.out.println("JOB PROGRESS: "+jobProgress());
         int allProgress = 0;
 
-        for (int i = 0; i<jobProgress().size(); i++){
+        for (int i = 0; i < jobProgress().size(); i++) {
             allProgress += (int) jobProgress().get(i);
         }
-        allProgress= allProgress / jobProgress().size();
+        allProgress = allProgress / jobProgress().size();
         //System.out.println("PROGRESS: " +allProgress);
 
-        if(allProgress < 10) return 1;
-        if(allProgress < 90) return 2;
-        if(allProgress <= 100) return 3;
+        if (allProgress < 10) return 1;
+        if (allProgress < 90) return 2;
+        if (allProgress <= 100) return 3;
 
         else return 0;
     }
 
 
-    private void usePower(int multiplier, Node node){
+    private void usePower(int multiplier, Node node) {
         ((Energy) node.getProtocol(powerSourcePID)).consume(multiplier);
         overhead += multiplier;
     }
 
-    private boolean isStillAround(Node neighbor, Node local){
-       return  ((NeighborhoodMaintainer)local.getProtocol(neighborhoodPID)).getNeighbors().contains(neighbor);
+    private boolean isStillAround(Node neighbor, Node local) {
+        return ((NeighborhoodMaintainer) local.getProtocol(neighborhoodPID)).getNeighbors().contains(neighbor);
     }
 
-    private boolean isCompleted(boolean[] array){
-        for(boolean value : array){
+    private boolean isCompleted(boolean[] array) {
+        for (boolean value : array) {
             if (value == false)
                 return false;
         }
@@ -288,17 +270,16 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 
     public void nextCycle(Node localNode, int pid) {
-        if (!downloading && ! localData.isEmpty()){
+        if (!downloading && !localData.isEmpty()) {
 
             //clearOtherNodes();
-
 
 
             Map.Entry<String, Integer> toDownload = getDownload(localNode, pid);
 
 //            System.out.println("OTHER NODES: "+otherNodes);
 
-            if ( toDownload != null) {
+            if (toDownload != null) {
                 //craft a new message
 //                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
                 DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), localNode, localData);
@@ -311,8 +292,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     //receiving data from other peers
     public void processEvent(Node localNode, int pid, Object data) {
 
-        DataMessage event = (DataMessage)(data);
-        if (event.sender == localNode){
+        DataMessage event = (DataMessage) (data);
+        if (event.sender == localNode) {
             return;
         }
         countMessages++;
@@ -338,7 +319,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
 
             case DataMessage.LISTRESPONSE:
-                for ( Map.Entry<String, boolean[]> senderDataEntry : event.offers){
+                for (Map.Entry<String, boolean[]> senderDataEntry : event.offers) {
                     otherNodesData.add(new SimpleEntry<>(event.sender, senderDataEntry));
                 }
                 break;
@@ -367,12 +348,12 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
 
                     long bdw = localUplink <= remoteDownlink ? localUplink : remoteDownlink;
 
-                    sentData+=pieceSize;
+                    sentData += pieceSize;
 
                     dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
                     //consume energy
-                    usePower((int)(pieceSize/bdw), localNode);
+                    usePower((int) (pieceSize / bdw), localNode);
 
                 } else { // send a cancel message
                     DataMessage dataMsg;
@@ -395,7 +376,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
                 usePower(1, localNode);
                 break;
 
-                //TODO : what if energy cuts during a transfer? seeder is locked.
+            //TODO : what if energy cuts during a transfer? seeder is locked.
             case DataMessage.DATAACK:
                 //System.out.println("node "+ localNode.getID() +" piece "+event.pieceNumber +" DATAACK message from node" + event.sender.getID());
                 //we can stop uploading
@@ -412,7 +393,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         }
     }
 
-    private boolean localDataContains(String hash){
+    private boolean localDataContains(String hash) {
         for (Map.Entry<String, boolean[]> tuple : localData) {
             if (hash.equals(tuple.getKey())) {
                 return true;
@@ -421,8 +402,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         return false;
     }
 
-    private int getLocalIndex(String hash){
-        for (int i=0; i<localData.size() ; i++) {
+    private int getLocalIndex(String hash) {
+        for (int i = 0; i < localData.size(); i++) {
             if (hash.equals(localData.get(i).getKey())) {
                 return i;
             }
@@ -431,7 +412,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
     // send REQUEST messsages
-    private void requestNeighbors(Node localNode, DataMessage msg, int pid){
+    private void requestNeighbors(Node localNode, DataMessage msg, int pid) {
 
         //get neighbors list
         ((NeighborhoodMaintainer) localNode.getProtocol(neighborhoodPID)).getNeighbors()
@@ -447,7 +428,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
         return localData;
     }
 
-    public String jobProgress(String hash){
+    public String jobProgress(String hash) {
         if (localDataContains(hash)) {
             boolean[] tab = localData.get(getLocalIndex(hash)).getValue();
             int perc = 0;
@@ -459,7 +440,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 
     //TODO : better looking hashes
-    public ArrayList jobProgress(){
+    public ArrayList jobProgress() {
         ArrayList<Integer> progress = new ArrayList<>();
         for (Map.Entry<String, boolean[]> entry : localData) {
 
@@ -468,16 +449,16 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
             for (boolean b : tab) {
                 if (b) perc++;
             }
-            progress.add( (int)(((double)perc/(double)tab.length)*100));
+            progress.add((int) (((double) perc / (double) tab.length) * 100));
         }
         return progress;
     }
 
     //complete a job : hook for the initializer
-    public void completeJob(SoftwareJob job){
-        if ( ! localDataContains(job.getId()) ){
+    public void completeJob(SoftwareJob job) {
+        if (!localDataContains(job.getId())) {
 
-            boolean[] data = new boolean[(int) Math.ceil( (double)job.size / (double)pieceSize)];
+            boolean[] data = new boolean[(int) Math.ceil((double) job.size / (double) pieceSize)];
             Arrays.fill(data, Boolean.TRUE);
 
             localData.add(new SimpleEntry(job.getId(), data));
@@ -487,7 +468,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol{
     }
 }
 
-class DataMessage{
+class DataMessage {
 
     final static int REQUEST = 0;
     final static int OFFER = 1;
