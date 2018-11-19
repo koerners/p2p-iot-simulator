@@ -33,6 +33,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
     private final int pieceSize;
     public long countMessages = 0;
     public long sentData = 0;
+    public long dataDownloaded = 0;
     public long overhead = 0;
     // my local list <SoftwarePackage.ID, array>
     List<Map.Entry<String, boolean[]>> localData;
@@ -329,6 +330,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                 if (!downloading) {
                     this.downloading = true;
                     //send ACCEPT
+                    dataDownloaded += pieceSize;
                     DataMessage accept = new DataMessage(DataMessage.ACCEPT, event.hash, event.pieceNumber, localNode, localData);
                     EDSimulator.add(1, accept, event.sender, pid);
                     usePower(1, localNode);

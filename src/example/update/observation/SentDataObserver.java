@@ -63,12 +63,12 @@ public class SentDataObserver implements Control {
     // Control interface method. does the file handling
     public boolean execute() {
         StringBuilder log = new StringBuilder();
-        log.append("Node;SentData" + System.lineSeparator());
+        log.append("Node;SentData;RecData" + System.lineSeparator());
 
         for (int i = 0; i < Network.size(); i++) {
 
             NetworkAgent proto = (NetworkAgent) Network.get(i).getProtocol(pid);
-            log.append(Network.get(i).getID() +  ";" + proto.sentData).append(System.lineSeparator());
+            log.append(Network.get(i).getID() +  ";" + proto.sentData + ";" + proto.dataDownloaded).append(System.lineSeparator());
         }
         writer.write(log.toString());
 
