@@ -21,6 +21,14 @@ def plotter(file_seq, path):
         hauteur = math.floor(math.sqrt(len(progress.columns)))
         largeur = math.ceil(math.sqrt(len(progress.columns)))
 
+        rate = sentData.iloc[:, 1] / (sentData.iloc[:, 2] )
+
+        for i in range(0,hauteur):
+            if (rate.iat[i] > 5):
+                rate.iat[i] = 5
+
+        #print (rate)
+
         key_index=1
         for haut in  range(0,hauteur):
                 for large in range(1,largeur+1):
@@ -38,9 +46,9 @@ def plotter(file_seq, path):
                                                 plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
 
                                 # Plot nodes
-                                rate = sentData.iloc[:, 1] / (sentData.iloc[:, 2] )
-                                #print (rate)
-                                plt.scatter(coord.iloc[:, 1], coord.iloc[:, 2], s=1 + (4 * rate), zorder=1,
+
+
+                                plt.scatter(coord.iloc[:, 1], coord.iloc[:, 2], s=2 + (3 * rate), zorder=1,
                                             c=progress.iloc[:, key_index], vmin=0, vmax=100)
                                 plt.colorbar();
                                 plt.xticks([], [])
