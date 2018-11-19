@@ -6,9 +6,6 @@ import math
 #Sets interval
 interval = 40
 
-# Sets scale for how quickly nodes get bigger when they send data, the higher the less impact
-scale = 8000
-
 
 
 def plotter(file_seq, path):
@@ -41,7 +38,10 @@ def plotter(file_seq, path):
                                                 plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
 
                                 # Plot nodes
-                                plt.scatter(coord.iloc[:,1], coord.iloc[:,2], s=9+(sentData.iloc[:,1]/scale), zorder=1, c=progress.iloc[:,key_index], vmin=0, vmax=100)
+                                rate = sentData.iloc[:, 1] / (sentData.iloc[:, 2] + 1)
+                                # print (rate)
+                                plt.scatter(coord.iloc[:, 1], coord.iloc[:, 2], s=1 + (4 * rate), zorder=1,
+                                            c=progress.iloc[:, key_index], vmin=0, vmax=100)
                                 plt.colorbar();
                                 plt.xticks([], [])
                                 plt.yticks([], [])
