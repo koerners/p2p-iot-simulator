@@ -68,7 +68,7 @@ public class SentDataObserver implements Control {
         for (int i = 0; i < Network.size(); i++) {
 
             NetworkAgent proto = (NetworkAgent) Network.get(i).getProtocol(pid);
-            log.append(Network.get(i).getID() +  ";" + proto.counter.outgoingTotal + ";" + proto.counter.ingoingTotal + ";" + proto.counter.outgoingData + ";" + proto.counter.ingoingData).append(System.lineSeparator());
+            log.append(Network.get(i).getID() +  ";" + proto.counter.getOutgoingTotal() + ";" + proto.counter.getIngoingTotal() + ";" + proto.counter.getOutgoingData() + ";" + proto.counter.getIngoingData()).append(System.lineSeparator());
         }
         writer.write(log.toString());
 

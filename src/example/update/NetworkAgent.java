@@ -56,8 +56,11 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 
         localData = new ArrayList<>();
         otherNodesData = new ArrayList<>();
+        counter = new MessageCounter();
 
     }
+
+    public MessageCounter counter;
 
 
     public NetworkAgent clone() {
@@ -298,6 +301,15 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
             return;
         }
         countMessages++;
+
+        if (event.type == DataMessage.DATA){
+            counter.inTotalIncrement();
+            counter.inDataIncrement();
+        }
+        else {
+            counter.inTotalIncrement();
+        }
+
         switch (event.type) {
 
             case DataMessage.REQUEST:
@@ -307,6 +319,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                     if (localData.get(getLocalIndex(event.hash)).getValue()[event.pieceNumber]) {
                         DataMessage reply = new DataMessage(DataMessage.OFFER, event.hash, event.pieceNumber, localNode, null);
                         EDSimulator.add(1, reply, event.sender, pid);
+                        counter.outTotalIncrement();
                         usePower(1, localNode);
                     }
                 }
@@ -333,6 +346,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                     dataDownloaded += pieceSize;
                     DataMessage accept = new DataMessage(DataMessage.ACCEPT, event.hash, event.pieceNumber, localNode, localData);
                     EDSimulator.add(1, accept, event.sender, pid);
+                    counter.outTotalIncrement();
                     usePower(1, localNode);
                 }
                 break;
@@ -354,6 +368,8 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 
                     dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
+                    counter.outTotalIncrement();
+                    counter.outDataIncrement();
                     //consume energy
                     usePower((int) (pieceSize / bdw), localNode);
 
@@ -362,6 +378,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 
                     dataMsg = new DataMessage(DataMessage.CANCEL, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(1, dataMsg, event.sender, pid);
+                    counter.outTotalIncrement();
                     usePower(1, localNode);
                 }
                 break;
@@ -375,6 +392,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                 //send ack
                 DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode, null);
                 EDSimulator.add(1, msg, event.sender, pid);
+                counter.outTotalIncrement();
                 usePower(1, localNode);
                 break;
 
