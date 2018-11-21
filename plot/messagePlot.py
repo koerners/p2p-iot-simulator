@@ -12,9 +12,7 @@ def plotter(file_seq, path):
 
     messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
 
-
     #print(messages)
-
 
     totalOut = messages.iloc[:,1].sum()
     totalIn = messages.iloc[:,2].sum()
@@ -24,7 +22,8 @@ def plotter(file_seq, path):
 
 
 
-    
+
+
 
 
 
@@ -49,8 +48,6 @@ if __name__ == '__main__':
     for dat in os.listdir(args.path):
         if dat.startswith("sentdata") and dat.endswith(".dat"):
             files.append(dat.lstrip("sentdata_dump").rstrip(".dat"))
-
-            # plot each file
 
 
 

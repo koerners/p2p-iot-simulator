@@ -13,3 +13,7 @@ venv/
 getRand\(\)/
 
 *.gif
+
+*.patch
+
+demo\.txt
