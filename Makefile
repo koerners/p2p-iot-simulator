@@ -37,3 +37,6 @@ stats:
 
 extract:
 	python3 data_extraction.py raw_dat
+
+messages:
+	python3 plot/messagePlot.py raw_dat
