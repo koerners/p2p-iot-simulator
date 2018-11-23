@@ -13,6 +13,8 @@ clean:
 	rm -f `find src/ -name "*.class"`
 	rm -rf raw_dat/ figs/
 	rm -f log.txt
+	rm -f *.png
+
 
 run: order
 	java -cp $(LIBS):src peersim.Simulator $(CONFIG)
