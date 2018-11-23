@@ -155,6 +155,10 @@ def plotterTotal(file_seq, path):
 
     ax.legend((rects1[0], rects2[0]), ('Out', 'In'))
 
+    plt.savefig("totalNumbers"'.png', dpi = (200))
+
+
+
 
     def autolabel(rects):
         """
@@ -178,7 +182,6 @@ def plotterTotal(file_seq, path):
 
 
 
-    plt.savefig("totalNumbers"'.png', dpi = (200))
 
 if __name__ == '__main__':
 
