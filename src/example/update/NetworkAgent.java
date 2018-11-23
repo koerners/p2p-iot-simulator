@@ -305,6 +305,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
         if (event.type == DataMessage.DATA){
             counter.inTotalIncrement();
             counter.inDataIncrement();
+            counter.addDataIn(pieceSize);
         }
         else {
             counter.inTotalIncrement();
@@ -370,6 +371,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
                     counter.outTotalIncrement();
                     counter.outDataIncrement();
+                    counter.addDataOut(pieceSize);
                     //consume energy
                     usePower((int) (pieceSize / bdw), localNode);
 
