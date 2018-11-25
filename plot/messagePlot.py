@@ -110,8 +110,7 @@ def plotterAvg(file_seq, path):
     autolabel(rects3)
     autolabel(rects4)
 
-
-    plt.show()
+    # plt.show()
 
 
 
@@ -173,7 +172,7 @@ def plotterTotal(file_seq, path):
     autolabel(rects1)
     autolabel(rects2)
 
-    plt.show()
+    #plt.show()
 
     print(totalOut)
     print (totalIn)
