@@ -53,10 +53,11 @@ public class MessageCounter {
     }
 
     public void typeCounter(int type, int in_out){
-        if(type < 10) {
+        if(type < 8) {
             if(in_out == 0) msgTypeIn[type]++;
             else if(in_out == 1) msgTypeOut[type]++;
         }
+        else System.out.println("Check if type of message is properly declared in NetworkAgent.java");
     }
 
     public int getOutgoingTotal() {

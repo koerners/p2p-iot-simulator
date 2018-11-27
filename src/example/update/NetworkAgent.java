@@ -550,7 +550,9 @@ class DataMessage {
     final static int TELLME = 6;
     final static int LISTRESPONSE = 7;
 
-    // ? //enum type1 {REQUEST, RESPONSE}
+
+
+//    enum type1 {REQUEST, OFFER, ACCEPT, DATA, DATAACK, CANCEL, TELLME, LISTRESPONSE}
 
     int type;
     String hash;
