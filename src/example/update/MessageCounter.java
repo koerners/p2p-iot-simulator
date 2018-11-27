@@ -1,7 +1,5 @@
 package example.update;
 
-import peersim.core.Node;
-
 public class MessageCounter {
 
     private int outgoingTotal;
@@ -12,7 +10,9 @@ public class MessageCounter {
     private long dataIn;
     private long dataOut;
 
-    public int[] msgTypeCounter;
+    public int[] msgTypeIn;
+    public int[] msgTypeOut;
+
 
 
     public MessageCounter() {
@@ -22,7 +22,9 @@ public class MessageCounter {
         this.ingoingTotal = 0;
         this.dataIn = 0;
         this.dataOut = 0;
-        this.msgTypeCounter = new int[8];
+        this.msgTypeIn = new int[8];
+        this.msgTypeOut = new int[8];
+
 
     }
 
@@ -50,8 +52,11 @@ public class MessageCounter {
         dataIn += sizeInByte;
     }
 
-    public void typeCounter(int type){
-        msgTypeCounter[type]++ ;
+    public void typeCounter(int type, int in_out){
+        if(type < 10) {
+            if(in_out == 0) msgTypeIn[type]++;
+            else if(in_out == 1) msgTypeOut[type]++;
+        }
     }
 
     public int getOutgoingTotal() {
@@ -80,10 +85,11 @@ public class MessageCounter {
 
     public String getTypeCount(){
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i<msgTypeCounter.length; i++) {
+        for (int i = 0; i< msgTypeIn.length; i++) {
             stringBuilder.append(";");
-            stringBuilder.append(msgTypeCounter[i]);
-
+            stringBuilder.append(msgTypeIn[i]);
+            stringBuilder.append("/");
+            stringBuilder.append(msgTypeOut[i]);
         }
         return stringBuilder.toString();
     }
