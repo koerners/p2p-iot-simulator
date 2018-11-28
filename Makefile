@@ -29,7 +29,6 @@ graph:
 	mkdir -p figs
 	python3 plot/2d_graph.py raw_dat
 
-
 gif: graph
 	convert -delay 20 -loop 1 figs/*.png map.gif
 	convert map.gif -fuzz 10% -layers Optimize map.gif

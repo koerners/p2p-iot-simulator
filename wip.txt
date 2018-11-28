@@ -105,7 +105,7 @@ protocol.p2p_net_agent.step PROTOCOL_CYCLE
 control.inserter example.update.control.GossipInsert
 control.inserter.gossip_protocol gossip
 control.inserter.network_protocol p2p_net_agent
-control.inserter.size 600
+control.inserter.size 6000
 control.inserter.step CONTROL_CYCLE
 
 control.mover example.update.control.NodeMover
