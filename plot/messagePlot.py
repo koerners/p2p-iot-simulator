@@ -157,28 +157,28 @@ def plotterTotal(file_seq, path):
     print(messages)
 
     requestIn, requestOut = splitSum(messages.iloc[:,7])
-    request=(requestOut, requestIn)
+    request=np.array([requestOut, requestIn])
 
     offerIn, offerOut = splitSum(messages.iloc[:,8])
-    offer= (offerOut,offerIn)
+    offer= np.array([offerOut,offerIn])
 
     acceptIn, acceptOut = splitSum(messages.iloc[:,9])
-    accept=(acceptOut, acceptIn)
+    accept=np.array([acceptOut, acceptIn])
 
     datamIn, datamOut = splitSum(messages.iloc[:,10])
-    datam=(datamOut,datamIn)
+    datam=np.array([datamOut,datamIn])
 
     dataAckIn, dataAckOut = splitSum(messages.iloc[:,11])
-    dataAck= (dataAckOut,dataAckIn)
+    dataAck= np.array([dataAckOut,dataAckIn])
 
     CancelIn, CancelOut = splitSum(messages.iloc[:,12])
-    Cancel=(CancelOut,CancelIn)
+    Cancel=np.array([CancelOut,CancelIn])
 
     TellMeIn, TellMeOut = splitSum(messages.iloc[:,13])
-    TellMe=(TellMeOut,TellMeIn)
+    TellMe=np.array([TellMeOut,TellMeIn])
 
     ListResponseIn, ListResponseOut = splitSum(messages.iloc[:,14])
-    ListResponse=(ListResponseOut,ListResponseIn)
+    ListResponse=np.array([ListResponseOut,ListResponseIn])
 
     print(request, accept,Cancel)
 
@@ -201,12 +201,12 @@ def plotterTotal(file_seq, path):
 
     p1 = ax.bar(ind, request, width, color='r')
     p2 = ax.bar(ind, offer, width,bottom=request, color='g')
-    p3 = ax.bar(ind, accept, width,bottom=offer, color=(0.5,1.0,0.62))
-    p4 = ax.bar(ind, datam, width, bottom=accept, color='c')
-    p5 = ax.bar(ind, dataAck, width,bottom=datam, color='m')
-    p6 = ax.bar(ind, TellMe, width,bottom=dataAck, color='b')
-    p7 = ax.bar(ind, Cancel, width,bottom=TellMe, color='y')
-    p8 = ax.bar(ind, ListResponse, width,bottom=Cancel, color=(1.0,0.7,0.62))
+    p3 = ax.bar(ind, accept, width,bottom=request+offer, color=(0.5,1.0,0.62))
+    p4 = ax.bar(ind, datam, width, bottom=request+offer+accept, color='c')
+    p5 = ax.bar(ind, dataAck, width,bottom=request+offer+accept+datam, color='m')
+    p6 = ax.bar(ind, TellMe, width,bottom=request+offer+accept+datam+dataAck, color='b')
+    p7 = ax.bar(ind, Cancel, width,bottom=request+offer+accept+datam+dataAck+TellMe, color='y')
+    p8 = ax.bar(ind, ListResponse, width,bottom=request+offer+accept+datam+dataAck+TellMe+Cancel, color=(1.0,0.7,0.62))
 
     # add some text for labels, title and axes ticks
     ax.set_ylabel('Messages')
