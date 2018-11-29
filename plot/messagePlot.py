@@ -206,7 +206,7 @@ def plotterTotal(file_seq, path):
     p5 = ax.bar(ind, dataAck, width,bottom=request+offer+accept+datam, color='m')
     p6 = ax.bar(ind, TellMe, width,bottom=request+offer+accept+datam+dataAck, color='b')
     p7 = ax.bar(ind, Cancel, width,bottom=request+offer+accept+datam+dataAck+TellMe, color='y')
-    p8 = ax.bar(ind, ListResponse, width,bottom=request+offer+accept+datam+dataAck+TellMe+Cancel, color=(1.0,0.7,0.62))
+    p8 = ax.bar(ind, ListResponse, width,bottom=request+offer+accept+datam+dataAck+TellMe+Cancel, color=(1.0,0.7,0.62), yerr=std)
 
     # add some text for labels, title and axes ticks
     ax.set_ylabel('Messages')
