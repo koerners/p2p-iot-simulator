@@ -155,8 +155,8 @@ def plotterDataByte(file_seq, path):
     dataOut = messages.iloc[:,5].sum()
     dataIn = messages.iloc[:,6].sum()
 
-    std_dO=messages.loc[0:,'dataOut'].std()
-    std_dI=messages.loc[0:,'dataIn'].std()
+    std_dO=messages.loc[0:,'dataOut(Byte)'].std()
+    std_dI=messages.loc[0:,'dataIn(Byte)'].std()
 
     mpl_fig = plt.figure()
     ax = mpl_fig.add_subplot(111)
@@ -169,7 +169,7 @@ def plotterDataByte(file_seq, path):
     rects2 = ax.bar(ind + width, dataIn, width, color='y', yerr=std_dI)
 
     ax.set_ylabel('Bytes')
-    ax.set_title('Data')
+    ax.set_title('Data(Byte)')
     ax.set_xticks(ind + width / 2.)
 
     ax.legend((rects1[0], rects2[0]), ('DataOut','DataIn'))
