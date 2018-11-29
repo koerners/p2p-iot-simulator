@@ -148,6 +148,32 @@ def plotterData(file_seq, path):
     ax.legend((rects1[0], rects2[0]), ('DataOut','DataIn'))
     plt.savefig("Data"'.png', dpi = (200))
 
+def plotterDataByte(file_seq, path):
+
+    messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
+
+    dataOut = messages.iloc[:,5].sum()
+    dataIn = messages.iloc[:,6].sum()
+
+    std_dO=messages.loc[0:,'dataOut'].std()
+    std_dI=messages.loc[0:,'dataIn'].std()
+
+    mpl_fig = plt.figure()
+    ax = mpl_fig.add_subplot(111)
+    N = 1
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.35       # the width of the bars
+
+
+    rects1 = ax.bar(ind, dataOut, width, color='g', yerr=std_dO)
+    rects2 = ax.bar(ind + width, dataIn, width, color='y', yerr=std_dI)
+
+    ax.set_ylabel('Bytes')
+    ax.set_title('Data')
+    ax.set_xticks(ind + width / 2.)
+
+    ax.legend((rects1[0], rects2[0]), ('DataOut','DataIn'))
+    plt.savefig("DataByte"'.png', dpi = (200))
 
 def plotterTotal(file_seq, path):
 
@@ -206,7 +232,8 @@ def plotterTotal(file_seq, path):
     p5 = ax.bar(ind, dataAck, width,bottom=request+offer+accept+datam, color='m')
     p6 = ax.bar(ind, TellMe, width,bottom=request+offer+accept+datam+dataAck, color='b')
     p7 = ax.bar(ind, Cancel, width,bottom=request+offer+accept+datam+dataAck+TellMe, color='y')
-    p8 = ax.bar(ind, ListResponse, width,bottom=request+offer+accept+datam+dataAck+TellMe+Cancel, color=(1.0,0.7,0.62), yerr=std)
+    p8 = ax.bar(ind, ListResponse, width,bottom=request+offer+accept+datam+dataAck+TellMe+Cancel,
+                color=(1.0,0.7,0.62), yerr=std)
 
     # add some text for labels, title and axes ticks
     ax.set_ylabel('Messages')
@@ -264,3 +291,4 @@ if __name__ == '__main__':
     plotterAvg(seqMax,args.path)
     plotterVar(seqMax,args.path)
     plotterData(seqMax,args.path)
+    plotterDataByte(seqMax, args.path)
