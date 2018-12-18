@@ -5,8 +5,7 @@ import argparse
 import os
 import operator
 
-def plotterVar(file_seq, path):
-    messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
+def plotterVar(messages):
 
     tOvar=messages.loc[0:,'totalOut'].var()
     tIvar=messages.loc[0:,'totalIn'].var()
@@ -44,9 +43,7 @@ def plotterVar(file_seq, path):
 
 
 
-def plotterAvg(file_seq, path):
-
-    messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
+def plotterAvg(messages):
 
 
     tOMin=messages.loc[0:,'totalOut'].min()
@@ -114,16 +111,15 @@ def splitSum(msg):
     sumOut =0
     for all in msg:
         a,b=all.split("/")
-        print(a,b)
+        # print(a,b)
         sumIn= sumIn+int(a)
         sumOut= sumOut+int(b)
-    print ("--")
-    print (sumIn,sumOut)
+    #print ("--")
+    #print (sumIn,sumOut)
     return(sumIn,sumOut)
 
-def plotterData(file_seq, path):
+def plotterData(messages):
 
-    messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
 
     dataOut = messages.iloc[:,3].sum()
     dataIn = messages.iloc[:,4].sum()
@@ -148,9 +144,8 @@ def plotterData(file_seq, path):
     ax.legend((rects1[0], rects2[0]), ('DataOut','DataIn'))
     plt.savefig("Data"'.png', dpi = (200))
 
-def plotterDataByte(file_seq, path):
+def plotterDataByte(messages):
 
-    messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
 
     dataOut = messages.iloc[:,5].sum()
     dataIn = messages.iloc[:,6].sum()
@@ -175,10 +170,8 @@ def plotterDataByte(file_seq, path):
     ax.legend((rects1[0], rects2[0]), ('DataOut','DataIn'))
     plt.savefig("DataByte"'.png', dpi = (200))
 
-def plotterTotal(file_seq, path):
+def plotterTotal(messages):
 
-
-    messages = pandas.read_csv(path+"/sentdata_dump"+file_seq+".dat", delimiter=';')
 
     print(messages)
 
@@ -206,7 +199,7 @@ def plotterTotal(file_seq, path):
     ListResponseIn, ListResponseOut = splitSum(messages.iloc[:,14])
     ListResponse=np.array([ListResponseOut,ListResponseIn])
 
-    print(request, accept,Cancel)
+    #print(request, accept,Cancel)
 
 
     std_tO=messages.loc[0:,'totalOut'].std()
@@ -221,8 +214,8 @@ def plotterTotal(file_seq, path):
     ind = np.arange(N)  # the x locations for the groups
     width = 0.4       # the width of the bars
     fig, ax = plt.subplots()
-    print ("............")
-    print (request,offer,accept)
+    #print ("............")
+    #print (request,offer,accept)
 
 
     p1 = ax.bar(ind, request, width, color='r')
@@ -268,6 +261,13 @@ def plotterTotal(file_seq, path):
     autolabel(p7)
     autolabel(p8)
     """
+def getMetrics(messages):
+
+    #TODO: Get more metrics
+
+    cancelRatio = splitSum(messages.iloc[:,12])[0] / splitSum( messages.iloc[:,10])[0] # Cancel / Data
+    overallSeedRatio =  sum(messages.iloc[:,6]) / sum(messages.iloc[:,5]) # dataIn / dataOut
+    
 
 
 if __name__ == '__main__':
@@ -286,9 +286,15 @@ if __name__ == '__main__':
 
     seqMax = sorted(files)[-1]
 
+    messages = pandas.read_csv(args.path+"/sentdata_dump"+seqMax+".dat", delimiter=';')
 
-    plotterTotal(seqMax,args.path)
-    plotterAvg(seqMax,args.path)
-    plotterVar(seqMax,args.path)
-    plotterData(seqMax,args.path)
-    plotterDataByte(seqMax, args.path)
+
+    plotterTotal(messages)
+    plotterAvg(messages)
+    plotterVar(messages)
+    plotterData(messages)
+    plotterDataByte(messages)
+    getMetrics(messages)
+
+    print("--> Created graphs in main directory")
+

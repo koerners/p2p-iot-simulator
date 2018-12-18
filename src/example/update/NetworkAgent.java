@@ -122,8 +122,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
             //commonstate.gettime
             tellMeRequestSent = true;
             return null;
-
-
         }
 
         if (otherNodesData.isEmpty()) {

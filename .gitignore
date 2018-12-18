@@ -17,3 +17,9 @@ getRand\(\)/
 *.patch
 
 demo\.txt
+
+\.vscode/
+
+*.png
+
+log\.txt
