@@ -289,6 +289,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                 //craft a new message
 //                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
                 DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), localNode, localData);
+                counter.overallCounter(false, msg, pieceSize);
                 requestNeighbors(localNode, msg, pid);
 
             }
