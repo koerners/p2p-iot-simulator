@@ -118,8 +118,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
         if (!tellMeRequestSent) {
             DataMessage askForData = new DataMessage(DataMessage.TELLME, "null", 0, localNode, this.localData);
             requestNeighbors(localNode, askForData, pid);
-            counter.typeCounter(6,1);
-            counter.outTotalIncrement();
+            counter.overallCounter(false, askForData, pieceSize);
             //commonstate.gettime
             tellMeRequestSent = true;
             return null;
@@ -291,9 +290,6 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 //                System.out.println("KEY: " +toDownload.getKey() +" VALUE: " +toDownload.getValue());
                 DataMessage msg = new DataMessage(DataMessage.REQUEST, toDownload.getKey(), toDownload.getValue(), localNode, localData);
                 requestNeighbors(localNode, msg, pid);
-                counter.typeCounter(0,1);
-                counter.addDataOut(msg.size);
-                counter.outTotalIncrement();
 
             }
         }
@@ -306,21 +302,13 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
         if (event.sender == localNode) {
             return;
         }
-        counter.inTotalIncrement();
-        counter.addDataIn(event.size);
 
+        counter.overallCounter(true, event, pieceSize);
 
-//        if (event.type == DataMessage.DATA){
-//            counter.inDataIncrement();
-//            counter.typeCounter(3);
-//
-//
-//        }
 
         switch (event.type) {
 
             case DataMessage.REQUEST:
-                counter.typeCounter(0, 0);
 
                 if (!downloading && localDataContains(event.hash)) {
 
@@ -328,32 +316,24 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                     if (localData.get(getLocalIndex(event.hash)).getValue()[event.pieceNumber]) {
                         DataMessage reply = new DataMessage(DataMessage.OFFER, event.hash, event.pieceNumber, localNode, null);
                         EDSimulator.add(1, reply, event.sender, pid);
-                        counter.outTotalIncrement();
-                        counter.typeCounter(1,1);
-                        counter.outDataIncrement();
-                        counter.addDataOut(reply.size);
+                        counter.overallCounter(false, reply, pieceSize);
                         usePower(1, localNode);
                     }
                 }
                 break;
 
             case DataMessage.TELLME:
-                counter.typeCounter(6,0);
 
 
                 DataMessage sendInfo = new DataMessage(DataMessage.LISTRESPONSE, event.hash, event.pieceNumber, localNode, localData);
                 EDSimulator.add(1, sendInfo, event.sender, pid);
-                counter.outTotalIncrement();
-                counter.typeCounter(7,1);
-                counter.outDataIncrement();
-                counter.addDataOut(sendInfo.size);
+                counter.overallCounter(false, sendInfo, pieceSize);
 
                 break;
 
 
             case DataMessage.LISTRESPONSE:
-                counter.typeCounter(7,0);
-                counter.inDataIncrement();
+
 
                 for (Map.Entry<String, boolean[]> senderDataEntry : event.offers) {
                     otherNodesData.add(new SimpleEntry<>(event.sender, senderDataEntry));
@@ -361,7 +341,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                 break;
 
             case DataMessage.OFFER:
-                counter.typeCounter(1,0 );
+
 
                 //downloading data
                 if (!downloading) {
@@ -370,16 +350,14 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                     dataDownloaded += pieceSize;
                     DataMessage accept = new DataMessage(DataMessage.ACCEPT, event.hash, event.pieceNumber, localNode, localData);
                     EDSimulator.add(1, accept, event.sender, pid);
-                    counter.outTotalIncrement();
-                    counter.typeCounter(2,1);
-                    counter.addDataOut(accept.size); //?
+                    counter.overallCounter(false, accept, pieceSize);
+
 
                     usePower(1, localNode);
                 }
                 break;
 
             case DataMessage.ACCEPT:
-                counter.typeCounter(2,0);
 
                 if (!downloading) {
                     //System.out.println("Node "+ localNode.getID() +" piece "+event.pieceNumber+ "receivied ACCEPT from node "+event.sender.getID());
@@ -397,11 +375,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 
                     dataMsg = new DataMessage(DataMessage.DATA, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(pieceSize / bdw, dataMsg, event.sender, pid);
-                    counter.outTotalIncrement();
-                    counter.typeCounter(3,1);
-                    counter.outDataIncrement();
-                    counter.addDataOut(dataMsg.size);
-
+                    counter.overallCounter(false, dataMsg, pieceSize);
 
                     //consume energy
                     usePower((int) (pieceSize / bdw), localNode);
@@ -411,16 +385,13 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 
                     dataMsg = new DataMessage(DataMessage.CANCEL, event.hash, event.pieceNumber, localNode, null);
                     EDSimulator.add(1, dataMsg, event.sender, pid);
-                    counter.outTotalIncrement();
-                    counter.typeCounter(5,1);
-                    counter.addDataOut(dataMsg.size);
-                    counter.outDataIncrement();
+                    counter.overallCounter(false, dataMsg, pieceSize);
+
                     usePower(1, localNode);
                 }
                 break;
 
             case DataMessage.DATA:
-                counter.typeCounter(3,0);
 
                 //mark piece as completed into DB
                 if (isStillAround(event.sender, localNode)) {
@@ -430,11 +401,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                 //send ack
                 DataMessage msg = new DataMessage(DataMessage.DATAACK, event.hash, event.pieceNumber, localNode, null);
                 EDSimulator.add(1, msg, event.sender, pid);
-                counter.outDataIncrement();
-                counter.outTotalIncrement();
-                counter.typeCounter(4,1);
-                counter.addDataOut(msg.size);
-                counter.inDataIncrement();
+                counter.overallCounter(false, msg, pieceSize);
 
 
 //
@@ -445,14 +412,12 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
             case DataMessage.DATAACK:
                 //System.out.println("node "+ localNode.getID() +" piece "+event.pieceNumber +" DATAACK message from node" + event.sender.getID());
                 //we can stop uploading
-                counter.typeCounter(4,0);
-                counter.inDataIncrement();
+
 
                 this.downloading = false;
                 break;
 
             case DataMessage.CANCEL:
-                counter.typeCounter(5,0);
 
                 this.downloading = false;
                 // try again
@@ -551,15 +516,13 @@ class DataMessage {
     final static int LISTRESPONSE = 7;
 
 
-
-//    enum type1 {REQUEST, OFFER, ACCEPT, DATA, DATAACK, CANCEL, TELLME, LISTRESPONSE}
+//    enum type {REQUEST, OFFER, ACCEPT, DATA, DATAACK, CANCEL, TELLME, LISTRESPONSE}
 
     int type;
     String hash;
     int pieceNumber;
     List<Map.Entry<String, boolean[]>> offers;
     Node sender;
-    long size;
 
 
     public DataMessage(int type, String hash, int pieceNumber, Node sender, List<Map.Entry<String, boolean[]>> offers) {
@@ -568,19 +531,5 @@ class DataMessage {
         this.hash = hash;
         this.pieceNumber = pieceNumber;
         this.offers = offers;
-        this.size = hash.length()*3;
-
-
-
-
-
-        if(offers != null) {
-            for (Map.Entry<String, boolean[]> of : offers) {
-                this.size += of.getKey().length() * 3;
-                this.size += of.getValue().length * 4;
-                //in bytes
-            }
-        }
-
     }
 }
