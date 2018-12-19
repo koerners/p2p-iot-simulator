@@ -143,6 +143,12 @@ control.dataObs example.update.observation.SentDataObserver
 control.dataObs.protocol p2p_net_agent
 control.dataObs.step OBERVERS_CYCLE
 
+control.rangeObs example.update.observation.RangeObserver
+control.rangeObs.protocol range
+control.rangeObs.step OBERVERS_CYCLE
+
+
+
 ################ Order & timings ==============================
 
 order.protocol link,tr,energy,neighbor,gossip,supervisor,p2p_net_agent
