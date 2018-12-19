@@ -63,12 +63,12 @@ public class SentDataObserver implements Control {
     // Control interface method. does the file handling
     public boolean execute() {
         StringBuilder log = new StringBuilder();
-        log.append("Node;totalOut;totalIn;dataOut;dataIn;dataOut(Byte);dataIn(Byte);Request;Offer;Accept;Data;DataAck;Cancel;TellMe;ListResponds" + System.lineSeparator());
+        log.append("Node;totalOut;totalIn;dataOut;dataIn;dataOut(Byte);dataIn(Byte);Request;Offer;Accept;Data;DataAck;Cancel;TellMe;ListResponds;RequestD;OfferD;AcceptD;DataD;DataAckD;CancelD;TellMeD;ListRespondsD" + System.lineSeparator());
 
         for (int i = 0; i < Network.size(); i++) {
 
             NetworkAgent proto = (NetworkAgent) Network.get(i).getProtocol(pid);
-            log.append(Network.get(i).getID() +  ";" + proto.counter.getOutgoingTotal() + ";" + proto.counter.getIngoingTotal() + ";" + proto.counter.getOutgoingData() + ";" + proto.counter.getIngoingData() + ";" + proto.counter.getDataOut() + ";" + proto.counter.getDataIn() + proto.counter.getTypeCount()).append(System.lineSeparator());
+            log.append(Network.get(i).getID() +  ";" + proto.counter.getOutgoingTotal() + ";" + proto.counter.getIngoingTotal() + ";" + proto.counter.getOutgoingData() + ";" + proto.counter.getIngoingData() + ";" + proto.counter.getDataOut() + ";" + proto.counter.getDataIn() + proto.counter.getTypeCount() + proto.counter.getTypeData()).append(System.lineSeparator());
         }
         writer.write(log.toString());
 
