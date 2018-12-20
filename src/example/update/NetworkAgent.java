@@ -150,7 +150,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 //                                                + " local(" + localNode.getID() + ")=" + localDl.getValue()[i]);
 
                                         if (availableDl.getValue().getValue()[i] == true && localDl.getValue()[i] == false) {
-                                            System.out.println("Get available in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
+                                            //System.out.println("Get available in node " + localNode.getID() + " picked piece number: " + i + " from node " + availableDl.getKey().getID());
                                             //clearOther();
                                             //otherNodesDataCopy.clear();
                                             return new SimpleEntry<>(localDl.getKey(), i);
@@ -204,7 +204,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
 
                         }
                         if (minJob != null) {
-                            System.out.println("Rarest first: JOB: " + minJob + " INDEX:  " + minIndex + " VALUE:  " + min);
+                            //System.out.println("Rarest first: JOB: " + minJob + " INDEX:  " + minIndex + " VALUE:  " + min);
                             return new SimpleEntry<>(minJob, minIndex);
                         }
 
@@ -217,7 +217,7 @@ public class NetworkAgent implements EDProtocol, CDProtocol {
                         for (int i = 0; i < this.localData.size(); i++) {
                             for (int j = 0; j < this.localData.get(i).getValue().length; j++) {
                                 if (this.localData.get(i).getValue()[j] == false) {
-                                    System.out.println("Endgame " + localData.get(i).getKey() + "  " + j);
+                                    //System.out.println("Endgame " + localData.get(i).getKey() + "  " + j);
                                     return new SimpleEntry<>(this.localData.get(i).getKey(), j);
                                 }
                             }

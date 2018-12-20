@@ -9,9 +9,9 @@ import pandas
 
 def plotter(file_seq, path):
     
-        coord = pandas.read_csv(path+"/graph_dump"+file_seq+".dat", delimiter=';')
+        coord = pandas.read_csv(path+"/graph_dump"+file_seq+".dat", header=None, delimiter=';')
         neigh_file = path+"/neighbors_dump"+file_seq+".dat"
-        distance = pandas.read_csv(path+"/range_dump"+file_seq+".dat", delimiter=';')
+        distance = pandas.read_csv(path+"/range_dump"+file_seq+".dat", header=None, delimiter=';')
 
         w,h = plt.figaspect(1)
         plt.figure(figsize=(w,h))
@@ -24,8 +24,8 @@ def plotter(file_seq, path):
         for line in open(neigh_file):
                 neighbors = line.rstrip(';\n').split(';')
                 for node in range(1, len(neighbors)):
-                        A = neighbors[0]
-                        B = neighbors[node]
+                        A = int(neighbors[0])
+                        B = int(neighbors[node])
                         plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
 
         # Plot nodes 
@@ -39,9 +39,9 @@ def plotter(file_seq, path):
                         bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
                         arrowprops=dict(arrowstyle = '->', connectionstyle='arc3,rad=0'))
 
+
         #plot range
-        for i in range(0, distance.shape[1]-1):
-                print("hey ! range is "+str(distance.iloc[i,1]))
+        for i in range(0, distance.shape[0]-1):
                 circle = Circle((coord.iloc[i,1], coord.iloc[i,2]), radius=distance.iloc[i,1], edgecolor='k', linestyle='--', fill=False)
                 ax.add_artist(circle)
 

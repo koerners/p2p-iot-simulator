@@ -237,7 +237,7 @@ def plotterTotal(messages):
     ax.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0], p7[0], p8[0]),
               ('Request', 'Offer','Accept','DataM','DataAck','TellMe','Cancel','ListResponse'))
 
-    print (messages.iloc[:,22])
+    #print (messages.iloc[:,22])
 
     plt.savefig("totalNumbers"'.png', dpi = (200))
 
