@@ -237,6 +237,8 @@ def plotterTotal(messages):
     ax.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0], p7[0], p8[0]),
               ('Request', 'Offer','Accept','DataM','DataAck','TellMe','Cancel','ListResponse'))
 
+    print (messages.iloc[:,22])
+
     plt.savefig("totalNumbers"'.png', dpi = (200))
 
 
@@ -261,6 +263,75 @@ def plotterTotal(messages):
     autolabel(p7)
     autolabel(p8)
     """
+
+def plotterTotalByte(messages):
+
+    requestIn, requestOut = splitSum(messages.iloc[:,15])
+    request=np.array([requestOut, requestIn])
+
+    offerIn, offerOut = splitSum(messages.iloc[:,16])
+    offer= np.array([offerOut,offerIn])
+
+    acceptIn, acceptOut = splitSum(messages.iloc[:,17])
+    accept=np.array([acceptOut, acceptIn])
+
+    datamIn, datamOut = splitSum(messages.iloc[:,18])
+    datam=np.array([datamOut,datamIn])
+
+    dataAckIn, dataAckOut = splitSum(messages.iloc[:,19])
+    dataAck= np.array([dataAckOut,dataAckIn])
+
+    CancelIn, CancelOut = splitSum(messages.iloc[:,20])
+    Cancel=np.array([CancelOut,CancelIn])
+
+    TellMeIn, TellMeOut = splitSum(messages.iloc[:,21])
+    TellMe=np.array([TellMeOut,TellMeIn])
+
+    ListResponseIn, ListResponseOut = splitSum(messages.iloc[:,22])
+    ListResponse=np.array([ListResponseOut,ListResponseIn])
+
+    #print(request, accept,Cancel)
+
+
+    std_tO=messages.loc[0:,'totalOut'].std()
+    std_tI=messages.loc[0:,'totalIn'].std()
+
+    std = (std_tO,std_tI)
+
+
+    N = 2
+
+
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.4       # the width of the bars
+    fig, ax = plt.subplots()
+    #print ("............")
+    #print (request,offer,accept)
+
+
+    p1 = ax.bar(ind, request, width, color='r')
+    p2 = ax.bar(ind, offer, width,bottom=request, color='g')
+    p3 = ax.bar(ind, accept, width,bottom=request+offer, color=(0.5,1.0,0.62))
+    p4 = ax.bar(ind, datam, width, bottom=request+offer+accept, color='c')
+    p5 = ax.bar(ind, dataAck, width,bottom=request+offer+accept+datam, color='m')
+    p6 = ax.bar(ind, TellMe, width,bottom=request+offer+accept+datam+dataAck, color='b')
+    p7 = ax.bar(ind, Cancel, width,bottom=request+offer+accept+datam+dataAck+TellMe, color='y')
+    p8 = ax.bar(ind, ListResponse, width,bottom=request+offer+accept+datam+dataAck+TellMe+Cancel,
+                color=(1.0,0.7,0.62), yerr=std)
+
+    # add some text for labels, title and axes ticks
+    ax.set_ylabel('Messages')
+    ax.set_title('Total(Bytes)')
+    ax.set_xticks(ind+width/2)
+    ax.set_xticklabels(('totalOut', 'TotalIn'))
+
+    ax.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0], p7[0], p8[0]),
+              ('Request', 'Offer','Accept','DataM','DataAck','TellMe','Cancel','ListResponse'))
+
+
+    plt.savefig("totalNumbers(Byte)"'.png', dpi = (200))
+
+
 def getMetrics(messages):
 
     #TODO: Get more metrics
@@ -290,6 +361,7 @@ if __name__ == '__main__':
 
 
     plotterTotal(messages)
+    plotterTotalByte(messages)
     plotterAvg(messages)
     plotterVar(messages)
     plotterData(messages)
