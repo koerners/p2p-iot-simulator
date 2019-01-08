@@ -142,26 +142,26 @@ public class MessageCounter {
             switch (msg.type) {
                 case REQUEST:
                     request_In++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     request_dataIn += size;
                     break;
 
                 case OFFER:
                     offer_In++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     offer_dataIn += size;
                     break;
 
                 case ACCEPT:
                     accept_In++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     accept_dataIn += size;
                     break;
 
                 case DATA:
                     data_In++;
                     ingoingData++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber + pieceSize;
+                    size = 1 + msg.hash.length() * 8 + 1 + pieceSize;
                     data_dataIn += size;
                     break;
 
@@ -169,13 +169,13 @@ public class MessageCounter {
                     dataack_In++;
                     ingoingData++;
 
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     dataack_dataIn += size;
                     break;
 
                 case CANCEL:
                     cancel_In++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     cancel_dataIn += size;
                     break;
 
@@ -189,10 +189,10 @@ public class MessageCounter {
                     listresponse_In++;
                     ingoingData++;
 
-                    size += msg.hash.length() * 3;
+                    size += msg.hash.length() * 8;
 
                     for (Map.Entry<String, boolean[]> of : msg.offers) {
-                        size += of.getKey().length() * 3;
+                        size += of.getKey().length() * 8;
                         size += of.getValue().length * 4;
                     }
 
@@ -208,21 +208,21 @@ public class MessageCounter {
             switch (msg.type) {
                 case REQUEST:
                     request_Out++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     request_dataOut += size;
                     break;
 
                 case OFFER:
                     offer_Out++;
                     outgoingData++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     offer_dataOut += size;
 
                     break;
 
                 case ACCEPT:
                     accept_Out++;
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() *8 + 1;
                     accept_dataOut += size;
 
 
@@ -232,7 +232,7 @@ public class MessageCounter {
                     data_Out++;
                     outgoingData++;
 
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber + pieceSize;
+                    size = 1 + msg.hash.length() * 8 + 1+ pieceSize;
 
                     data_dataOut += size;
 
@@ -243,7 +243,7 @@ public class MessageCounter {
                     dataack_Out++;
                     outgoingData++;
 
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length() * 8 + 1;
                     dataack_dataOut += size;
 
                     break;
@@ -252,7 +252,7 @@ public class MessageCounter {
                     cancel_Out++;
                     outgoingData++;
 
-                    size = 1 + msg.hash.length() * 3 + msg.pieceNumber;
+                    size = 1 + msg.hash.length()* 8 + 1;
 
                     cancel_dataOut += size;
 
@@ -268,9 +268,9 @@ public class MessageCounter {
                     listresponse_Out++;
                     outgoingData++;
 
-                    size += msg.hash.length() * 3;
+                    size += msg.hash.length() * 8;
                     for (Map.Entry<String, boolean[]> of : msg.offers) {
-                        size += of.getKey().length() * 3;
+                        size += of.getKey().length() * 8;
                         size += of.getValue().length * 4;
                     }
                     listresponse_dataOut += size;
