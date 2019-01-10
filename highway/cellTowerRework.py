@@ -1,4 +1,5 @@
 import pandas
+from OSGridConverter import latlong2grid
 
 #needed columns
 cols_to_get = ['X', 'Y', 'STRUCTYPE']
@@ -19,6 +20,14 @@ df['Y'] = df['Y'] - miniy
 print("Casting coordinates into integers")
 df['X'] = df['X'].astype(int)
 df['Y'] = df['Y'].astype(int)
+
+#Casting from Lat Lon to NAD83
+
+for index, row in df.iterrows():
+    g = latlong2grid(row["X"], row["Y"], tag = 'NAD83')
+    #print(g.E,g.N)
+    df.at[index, 'X'] = g.E
+    df.at[index, 'Y'] = g.N
 
 data_out = "cellTowersWestCoast_fixed.csv"
 cols_to_out = ['X', 'Y', 'STRUCTYPE']
