@@ -23,3 +23,5 @@ demo\.txt
 *.png
 
 log\.txt
+
+highway_101_fixed\.csv
