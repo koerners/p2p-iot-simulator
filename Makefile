@@ -17,7 +17,7 @@ clean:
 
 
 run: order
-	java -cp $(LIBS):src peersim.Simulator $(CONFIG)
+	java -Xmx2048m -cp $(LIBS):src peersim.Simulator $(CONFIG)
 	find raw_dat -type f -empty -delete
 
 order:

@@ -4,9 +4,7 @@ import argparse
 import os
 import math
 #Sets interval
-interval = 40
-
-
+interval = 120
 
 def plotter(file_seq, path):
     
@@ -20,8 +18,13 @@ def plotter(file_seq, path):
         #define subplot graph size
         hauteur = math.floor(math.sqrt(len(progress.columns)))
         largeur = math.ceil(math.sqrt(len(progress.columns)))
-
+        
+        #Rate at which important nodes grow (not in use)
         rate = sentData.iloc[:, 1] / (sentData.iloc[:, 2] )
+
+        #Offsets the starting points Standard: 0
+        offsetX = 300 
+        offsetY = 150
 
         for i in range(0,hauteur):
             if (rate.iat[i] > 5):
@@ -43,11 +46,14 @@ def plotter(file_seq, path):
                                         for node in range(1, len(neighbors_list)):
                                                 A = int(neighbors_list[0])
                                                 B = int(neighbors_list[node])
-                                                plt.plot([coord.iloc[A,1], coord.iloc[B,1]], [coord.iloc[A,2], coord.iloc[B,2]],  linewidth=0.2, zorder=-1, c='0.5')
+                                                #TODO: Error with connecting lines
+                                                #plt.plot([(coord.iloc[A,1])-offsetX, (coord.iloc[B,1])-offsetY], [(coord.iloc[A,2])-offsetX, (coord.iloc[B,2])-offsetY],  linewidth=0.2, zorder=-1, c='0.5')
 
                                 # Plot nodes
-                                plt.scatter(coord.iloc[:, 1], coord.iloc[:, 2], s=2 + (1 * rate), zorder=1,
-                                            c=progress.iloc[:, key_index], vmin=0, vmax=100)
+                                plt.scatter(coord.iloc[:, 1]-offsetX, coord.iloc[:, 2]-offsetY, s=1, zorder=1,
+                                            c='black', vmin=0, vmax=100)
+                                            #TODO: Error with colouring (RGBA 100 invalid)
+                                            #c=progress.iloc[:, key_index], vmin=0, vmax=100)
                                 #plt.colorbar()
                                 plt.xticks([], [])
                                 plt.yticks([], [])

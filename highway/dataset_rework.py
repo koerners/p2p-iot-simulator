@@ -44,7 +44,7 @@ print("Casting coordinates into integers")
 df['Global_X'] = df['Global_X'].astype(int)
 df['Global_Y'] = df['Global_Y'].astype(int)
 
-data_out = "highway_fixed.csv"
+data_out = "highway_101_fixed.csv"
 cols_to_out = ['Global_Time', 'Vehicle_ID', 'Global_X', 'Global_Y']
 print("Saving new dataset : "+data_out)
 df[cols_to_out].to_csv(data_out, sep=';', index=False)
