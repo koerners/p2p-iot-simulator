@@ -41,8 +41,8 @@ p2 = pyproj.Proj(init='epsg:2227', preserve_units=True)
 for index, row in df1.iterrows():
     x1 = row["X"]; y1 = row["Y"]
     x2, y2 = pyproj.transform(p1, p2, x1, y1)
-    df1.at[index, 'Y'] = x2
-    df1.at[index, 'X'] = y2
+    df1.at[index, 'X'] = x2
+    df1.at[index, 'Y'] = y2
     #print(x2, y2)
 
 
@@ -61,15 +61,15 @@ df['Global_Time'] = df['Global_Time'] - minitime
 
 
 #TODO: Correct offset
-minix1 = df['Global_X'].min()
-miniy1 = df['Global_Y'].min()
-minx2 = df1['X'].min()
-miny2 = df1['Y'].min()
+minix = df['Global_X'].min()
+miniy = df['Global_Y'].min()
+# minx2 = df1['X'].min()
+# miny2 = df1['Y'].min()
 
-minix = min(minix1, minx2)
-miniy = min(miniy1, miny2)
+# minix = min(minix1, minx2)
+# miniy = min(miniy1, miny2)
 
-#print(minix1, minx2, miniy1, miny2, minix, miniy)
+# #print(minix1, minx2, miniy1, miny2, minix, miniy)
 df['Global_X'] = df['Global_X'] - minix
 df['Global_Y'] = df['Global_Y'] - miniy
 
