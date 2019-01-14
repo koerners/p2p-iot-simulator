@@ -6,6 +6,8 @@ import math
 #Sets interval
 interval = 120
 
+interval = 10
+
 def plotter(file_seq, path):
     
         coord = pandas.read_csv(path+"/graph_dump"+file_seq+".dat", header=None, delimiter=';')
