@@ -1,4 +1,17 @@
 import pandas
+import numpy as np
+
+
+def normalize(list): 
+  l = np.array(list) 
+  a = np.max(l)
+  c = np.min(l)
+  b = 0
+  d = 1000
+
+  m = (b - d) / (a - c)
+  pslope = (m * (l - c)) + d
+  return pslope
 
 # example to work
 #df = pandas.DataFrame(data={'Vehicle_ID': [1,2,2,2,3,3,3], 'Total_Frames': [11,20,22,22,33,33,35]} )
@@ -32,19 +45,18 @@ print("Offsetting timestamps")
 minitime = df['Global_Time'].min()
 df['Global_Time'] = df['Global_Time'] - minitime
 
-minix = df['Global_X'].min()
-miniy = df['Global_Y'].min()
-df['Global_X'] = df['Global_X'] - minix
-df['Global_Y'] = df['Global_Y'] - miniy
+# df['Global_X'] = normalize(df['Global_X'])
+# df['Global_Y'] = normalize(df['Global_Y'])
+
 
 print("Sort by ascending time")
 df.sort_values('Global_Time', inplace=True)
 
-print("Casting coordinates into integers")
-df['Global_X'] = df['Global_X'].astype(int)
-df['Global_Y'] = df['Global_Y'].astype(int)
+# print("Casting coordinates into integers")
+# df['Global_X'] = df['Global_X'].astype(int)
+# df['Global_Y'] = df['Global_Y'].astype(int)
 
-data_out = "highway_fixed.csv"
+data_out = "highway_fixed_2.csv"
 cols_to_out = ['Global_Time', 'Vehicle_ID', 'Global_X', 'Global_Y']
 print("Saving new dataset : "+data_out)
 df[cols_to_out].to_csv(data_out, sep=';', index=False)

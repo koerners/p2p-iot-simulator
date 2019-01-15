@@ -1,6 +1,18 @@
 import pandas
-from OSGridConverter import latlong2grid
 import pyproj
+import numpy as np
+
+def normalize(list): 
+  l = np.array(list) 
+  a = np.max(l)
+  c = np.min(l)
+  b = 0
+  d = 1000
+
+  m = (b - d) / (a - c)
+  pslope = (m * (l - c)) + d
+  return pslope
+
 #needed columns
 cols_to_get_cell = ['X', 'Y', 'STRUCTYPE']
 data_in_cell = "Cellular_Towers.csv"
@@ -23,8 +35,6 @@ for index, row in df1.iterrows():
     #print(x2, y2)
 
 
-
-
 # Hardcoded values from the highway dataset (11 jan 2019)
 minix = 6451063.948 #df['X'].min()
 miniy = 1871874.94 #df['Y'].min()
@@ -32,11 +42,8 @@ maxX = 6452740.916
 maxY = 1873411.659
 
 
-
-
-df1 = df1.loc[df1['X'] < maxX*10]
-df1 = df1.loc[df1['Y'] < maxY*10]
-
+df1 = df1.loc[df1['X'] < maxX*1.5]
+df1 = df1.loc[df1['Y'] < maxY*1.5]
 
 df1['X'] = df1['X'] - minix
 df1['Y'] = df1['Y'] - miniy
@@ -45,8 +52,13 @@ df1 = df1.loc[df1['X'] > -1]
 df1 = df1.loc[df1['Y'] > -1]
 
 
+df1['X'] = normalize(df1['X'])
+df1['Y'] = normalize(df1['Y'])
+
+
 df1['X'] = df1['X'].astype(int)
 df1['Y'] = df1['Y'].astype(int)
+
 
 data_out1 = "cellTowersWestCoast_fixed.csv"
 cols_to_out1 = ['X', 'Y', 'STRUCTYPE']
