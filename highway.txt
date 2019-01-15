@@ -46,6 +46,8 @@ protocol.coordinates example.update.constraints.NodeCoordinates
 
 protocol.range example.update.constraints.NetworkRange
 
+protocol.category example.update.constraints.NodeCategory
+
 
 ########## logic protocols ======================
 
@@ -93,10 +95,7 @@ control.inserter.gossip_protocol gossip
 control.inserter.network_protocol p2p_net_agent
 control.inserter.filename dataset_debian/source.csv
 control.inserter.step 500
-
-control.batteryDrainer example.update.control.BatteryDecreaser
-control.batteryDrainer.energy_protocol energy
-control.batteryDrainer.step 200
+control.inserter.category_protocol category
 
 control.mover example.update.control.DatasetNodeMover
 control.mover.coord_protocol coordinates
@@ -123,6 +122,18 @@ control.mover.init.5.gaussian_mean 8000
 control.mover.init.1 peersim.edsim.CDScheduler
 control.mover.init.1.protocol neighbor supervisor p2p_net_agent
 
+control.init.categoryInit example.update.initialisation.AntennaInitializer
+control.init.categoryInit.category_protocol category
+control.init.categoryInit.bandwidth_protocol bandwidth
+control.init.categoryInit.range_protocol range
+control.init.categoryInit.storage_protocol disk_space
+control.init.categoryInit.location_protocol coordinates
+
+control.init.categoryInit.max_bandwidth 2000
+control.init.categoryInit.max_storage 1000000000
+control.init.categoryInit.max_range 1500
+control.init.categoryInit.cell_dataset cellTowersWestCoast_fixed.csv
+
 
 ################ Observers ==============================
 
@@ -148,14 +159,6 @@ control.StorageObs.step OBERVERS_CYCLE
 control.coordObs example.update.observation.InetObserver
 control.coordObs.coord_protocol coordinates
 control.coordObs.step OBERVERS_CYCLE
-
-control.messageObs example.update.observation.MessageObserver
-control.messageObs.protocol p2p_net_agent
-control.messageObs.step OBERVERS_CYCLE
-
-control.dataObs example.update.observation.SentDataObserver
-control.dataObs.protocol p2p_net_agent
-control.dataObs.step OBERVERS_CYCLE
 
 ################ Order & timings ==============================
 

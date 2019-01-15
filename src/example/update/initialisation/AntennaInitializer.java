@@ -22,8 +22,9 @@ public class AntennaInitializer implements Control {
      *
      * @config
      */
+
     private static final String PAR_CAT_PROT = "category_protocol";
-    private static final String PAR_BANDWIDTH_PROT = "_bandwidth_protocol";
+    private static final String PAR_BANDWIDTH_PROT = "bandwidth_protocol";
     private static final String PAR_RANGE_PROT = "range_protocol";
     private static final String PAR_STORAGE_PROT = "storage_protocol";
     private static final String PAR_LOCATION_PROT = "location_protocol";
