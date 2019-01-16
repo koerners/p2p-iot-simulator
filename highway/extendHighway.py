@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 
-
 def normalize(list): 
   l = np.array(list) 
   a = np.max(l)
   c = np.min(l)
+  #  Normalization between 0 and 1000 
   b = 0
   d = 1000
 
@@ -30,14 +30,25 @@ for car in veh:
     dfT = loca['Global_Time'][loca.index[-1]]
     dfX = loca['Global_X'][loca.index[-1]]
     dfY = loca['Global_Y'][loca.index[-1]]
+    
+    diffY = loca['Global_Y'].size
 
-    for i in range(187):
+    dfT1 = loca['Global_Time'][loca.index[0]]
+    dfX1 = loca['Global_X'][loca.index[0]]
+    dfY1 = loca['Global_Y'][loca.index[0]]
 
-        entry = pd.Series([dfT , car , dfX , dfY ],  index=df.columns )
-        list.append(entry)
-        dfT += 100
-        dfX += 3
-        dfY += 3
+    diffY = (dfY - dfY1) / loca['Global_Y'].size
+    diffX = (dfX - dfX1) / loca['Global_X'].size
+
+# Add [...] many more entries per car based on previus movement
+    for i in range(190):
+
+      entry = pd.Series([dfT , car , dfX , dfY ],  index=df.columns )
+      list.append(entry)
+      dfT += 100
+      dfX += diffX
+      dfY += diffY
+    
 
 print("Appending new data")
 modDfObj = df.append(list , ignore_index=True)

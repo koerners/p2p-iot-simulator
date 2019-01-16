@@ -19,8 +19,6 @@ data_in_cell = "Cellular_Towers.csv"
 print("importing file : "+data_in_cell)
 df1 = pandas.read_csv(data_in_cell, usecols=cols_to_get_cell, na_filter=False)
 
-# Celltowers on the west coast
-
 print("Casting from Lat Lon to NAD83")
 
 p1 = pyproj.Proj(proj='latlong',datum='WGS84', preserve_units=True)
@@ -32,7 +30,6 @@ for index, row in df1.iterrows():
     x2, y2 = pyproj.transform(p1, p2, x1, y1)
     df1.at[index, 'X'] = x2
     df1.at[index, 'Y'] = y2
-    #print(x2, y2)
 
 
 # Hardcoded values from the highway dataset (11 jan 2019)

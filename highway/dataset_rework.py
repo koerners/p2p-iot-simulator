@@ -2,17 +2,6 @@ import pandas
 import numpy as np
 
 
-def normalize(list): 
-  l = np.array(list) 
-  a = np.max(l)
-  c = np.min(l)
-  b = 0
-  d = 1000
-
-  m = (b - d) / (a - c)
-  pslope = (m * (l - c)) + d
-  return pslope
-
 # example to work
 #df = pandas.DataFrame(data={'Vehicle_ID': [1,2,2,2,3,3,3], 'Total_Frames': [11,20,22,22,33,33,35]} )
 
@@ -44,9 +33,6 @@ for i in range(0, uniques.shape[0]):
 print("Offsetting timestamps")
 minitime = df['Global_Time'].min()
 df['Global_Time'] = df['Global_Time'] - minitime
-
-# df['Global_X'] = normalize(df['Global_X'])
-# df['Global_Y'] = normalize(df['Global_Y'])
 
 
 print("Sort by ascending time")
