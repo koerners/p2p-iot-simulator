@@ -11,7 +11,7 @@ map_size 1000
 #random.seed 1234567890
 random.seed 22222222748
 
-simulation.endtime 3000
+simulation.endtime 50000
 simulation.logtime 50
 
 
@@ -141,6 +141,10 @@ control.neighobserver.step OBERVERS_CYCLE
 #control.StorageObs example.update.observation.StorageObserver
 #control.StorageObs.protocol disk_space
 #control.StorageObs.step OBERVERS_CYCLE
+
+control.dataObs example.update.observation.SentDataObserver
+control.dataObs.protocol p2p_net_agent
+control.dataObs.step OBERVERS_CYCLE
 
 ################ Order & timings ==============================
 
