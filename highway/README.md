@@ -3,11 +3,16 @@ designed to use this :
 
 https://data.transportation.gov/Automobiles/Next-Generation-Simulation-NGSIM-Vehicle-Trajector/8ect-6jqj
 
+and this:
+
+https://hifld-geoplatform.opendata.arcgis.com/datasets/0835ba2ed38f494196c14af8407454fb_0 (Dataset: location of cell towers (2012):
+)
+
+#### Download of fixed datasets: ####
+
+https://drive.google.com/open?id=1UiPcRK4iaHKDkN8VaPeAM2MnSQt1On5H
 
 
-Dataset: location of cell towers (2012):
-
-https://hifld-geoplatform.opendata.arcgis.com/datasets/0835ba2ed38f494196c14af8407454fb_0
 
 useful for coverage data (focus on IS 101):
 

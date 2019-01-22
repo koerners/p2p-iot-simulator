@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 
+# Extends the highway dataset by using the trajectory of every single car to calculate it's expected route
+# Takes highway_fixed_2.csv from dataset_rework.py and outputs highway_extended.csv which can be used in the simulation
+
 def normalize(list): 
   l = np.array(list) 
   a = np.max(l)
@@ -40,7 +43,7 @@ for car in veh:
     diffY = (dfY - dfY1) / loca['Global_Y'].size
     diffX = (dfX - dfX1) / loca['Global_X'].size
 
-# Add [...] many more entries per car based on previus movement
+# Add [...] many more entries per car based on previous movement
     for i in range(190):
 
       entry = pd.Series([dfT , car , dfX , dfY ],  index=df.columns )

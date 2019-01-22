@@ -2,6 +2,10 @@ import pandas
 import pyproj
 import numpy as np
 
+
+#Reworks the CellTower dataset to cast from Lat/Lon to the CAL III NAD83 format, normalize the data to 0-1000 and cast to int
+# Takes the original dataset and outputs cellTowersWestCoast_fixed.csv which can be used in the simulation
+
 def normalize(list): 
   l = np.array(list) 
   a = np.max(l)
